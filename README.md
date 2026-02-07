@@ -1,6 +1,45 @@
 # Node.js Pointer Compression Experiments
 
+[![Build and Publish Docker Images](https://github.com/platformatic/pointer-compression-experiments/actions/workflows/build-publish.yml/badge.svg)](https://github.com/platformatic/pointer-compression-experiments/actions/workflows/build-publish.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/platformatic/node-pointer-compression)](https://hub.docker.com/r/platformatic/node-pointer-compression)
+
 This repository contains experiments for building Node.js with V8 pointer compression enabled. Pointer compression is a V8 optimization that reduces memory usage by using 32-bit compressed pointers instead of full 64-bit pointers.
+
+## Docker Images
+
+Pre-built multi-architecture images (amd64/arm64) are available on DockerHub:
+
+```bash
+# Pull the latest image (Debian bookworm, recommended)
+docker pull platformatic/node-pointer-compression:latest
+
+# Or use a specific variant
+docker pull platformatic/node-pointer-compression:bookworm  # Full Debian
+docker pull platformatic/node-pointer-compression:slim      # Minimal Debian
+docker pull platformatic/node-pointer-compression:alpine    # Alpine Linux (experimental)
+
+# Pin to a specific Node.js version
+docker pull platformatic/node-pointer-compression:25.6.1
+docker pull platformatic/node-pointer-compression:25.6.1-slim
+```
+
+### Available Tags
+
+| Tag | Description |
+|-----|-------------|
+| `latest`, `bookworm` | Latest build on Debian bookworm (recommended) |
+| `slim` | Minimal Debian bookworm-slim runtime (~100MB smaller) |
+| `alpine` | Alpine Linux with musl libc (smallest, experimental) |
+| `{version}` | Specific Node.js version on bookworm (e.g., `25.6.1`) |
+| `{version}-{variant}` | Specific version and variant (e.g., `25.6.1-alpine`) |
+
+### Variant Comparison
+
+| Variant | Base Image | Size | Compatibility |
+|---------|-----------|------|---------------|
+| `bookworm` | debian:bookworm | ~250MB | Full glibc, best compatibility |
+| `slim` | debian:bookworm-slim | ~150MB | Minimal glibc runtime |
+| `alpine` | alpine:3.21 | ~100MB | musl libc, experimental |
 
 ## Quick Start
 
@@ -44,3 +83,40 @@ The Dockerfile builds Node.js from the v25.x branch with the `--experimental-ena
 
 - `tests/verify-pointer-compression.js` - Verifies pointer compression is enabled by checking heap limits
 - `tests/memory-benchmark.js` - Benchmarks memory usage with pointer-heavy data structures
+
+## Building Locally
+
+For local development, use the root Dockerfile:
+
+```bash
+# Build for local architecture
+docker build --network=host -t node-pointer-compression .
+
+# Run interactively
+docker run -it node-pointer-compression
+
+# Run a script
+docker run -v $(pwd):/app node-pointer-compression node /app/your-script.js
+```
+
+To build a specific variant locally:
+
+```bash
+# Build bookworm variant
+docker build -f docker/bookworm/Dockerfile -t node-pointer-compression:bookworm .
+
+# Build slim variant
+docker build -f docker/slim/Dockerfile -t node-pointer-compression:slim .
+
+# Build alpine variant
+docker build -f docker/alpine/Dockerfile -t node-pointer-compression:alpine .
+```
+
+## CI/CD
+
+The GitHub Actions workflow automatically builds and publishes multi-architecture images on:
+- Push to `main` branch
+- Tagged releases (`v*`)
+- Manual workflow dispatch
+
+Images are built natively on both amd64 and arm64 runners for optimal build performance.

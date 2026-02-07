@@ -1,0 +1,228 @@
+# Multi-architecture Docker build and publish workflow
+# Builds Node.js with pointer compression for amd64 and arm64
+# Supports three variants: bookworm (Debian), slim (minimal), alpine
+
+name: Build and Publish Docker Images
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: platformatic/node-pointer-compression
+
+jobs:
+  # =============================================================================
+  # Phase 1: Build images for each variant/architecture combination
+  # =============================================================================
+  build:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Bookworm builds
+          - variant: bookworm
+            arch: amd64
+            runner: ubuntu-latest
+          - variant: bookworm
+            arch: arm64
+            runner: ubuntu-24.04-arm
+          # Slim builds
+          - variant: slim
+            arch: amd64
+            runner: ubuntu-latest
+          - variant: slim
+            arch: arm64
+            runner: ubuntu-24.04-arm
+          # Alpine builds
+          - variant: alpine
+            arch: amd64
+            runner: ubuntu-latest
+          - variant: alpine
+            arch: arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/${{ matrix.variant }}/Dockerfile
+          platforms: linux/${{ matrix.arch }}
+          push: ${{ github.event_name != 'pull_request' }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
+          cache-from: type=gha,scope=${{ matrix.variant }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.variant }}-${{ matrix.arch }}
+
+      - name: Export digest
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p /tmp/digests/${{ matrix.variant }}
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${{ matrix.variant }}/${digest#sha256:}"
+
+      - name: Upload digest
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.variant }}-${{ matrix.arch }}
+          path: /tmp/digests/${{ matrix.variant }}/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # =============================================================================
+  # Phase 2: Create multi-arch manifests for each variant
+  # =============================================================================
+  merge:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    needs: build
+    strategy:
+      matrix:
+        variant: [bookworm, slim, alpine]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download amd64 digest
+        uses: actions/download-artifact@v4
+        with:
+          name: digests-${{ matrix.variant }}-amd64
+          path: /tmp/digests/${{ matrix.variant }}
+
+      - name: Download arm64 digest
+        uses: actions/download-artifact@v4
+        with:
+          name: digests-${{ matrix.variant }}-arm64
+          path: /tmp/digests/${{ matrix.variant }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Node.js version
+        id: node-version
+        run: |
+          # Get one of the digests to pull and extract version
+          digest=$(ls /tmp/digests/${{ matrix.variant }}/ | head -1)
+
+          # Pull the image by digest
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:${digest}
+
+          # Extract Node.js version from the image
+          NODE_VERSION=$(docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:${digest} node --version | sed 's/^v//')
+          echo "version=${NODE_VERSION}" >> $GITHUB_OUTPUT
+          echo "Node.js version: ${NODE_VERSION}"
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests/${{ matrix.variant }}
+        run: |
+          NODE_VERSION="${{ steps.node-version.outputs.version }}"
+          VARIANT="${{ matrix.variant }}"
+
+          # Build the list of image references from digests
+          DIGESTS=$(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
+
+          # Tags to create
+          TAGS=""
+
+          # Always add version-variant tag (e.g., 25.6.1-bookworm)
+          TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}-${VARIANT}"
+
+          # Always add variant-only tag (e.g., bookworm, slim, alpine)
+          TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VARIANT}"
+
+          # For bookworm (default variant), also add version-only and latest tags
+          if [ "$VARIANT" = "bookworm" ]; then
+            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}"
+            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          fi
+
+          # Create and push the manifest
+          docker buildx imagetools create $TAGS $DIGESTS
+
+      - name: Inspect manifest
+        run: |
+          NODE_VERSION="${{ steps.node-version.outputs.version }}"
+          echo "Inspecting manifest for ${{ matrix.variant }}..."
+          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }}
+
+  # =============================================================================
+  # Phase 3: Test the published images
+  # =============================================================================
+  test:
+    runs-on: ${{ matrix.runner }}
+    if: github.event_name != 'pull_request'
+    needs: merge
+    strategy:
+      matrix:
+        include:
+          # Bookworm tests
+          - variant: bookworm
+            arch: amd64
+            runner: ubuntu-latest
+          - variant: bookworm
+            arch: arm64
+            runner: ubuntu-24.04-arm
+          # Slim tests
+          - variant: slim
+            arch: amd64
+            runner: ubuntu-latest
+          - variant: slim
+            arch: arm64
+            runner: ubuntu-24.04-arm
+          # Alpine tests
+          - variant: alpine
+            arch: amd64
+            runner: ubuntu-latest
+          - variant: alpine
+            arch: arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull and test image
+        run: |
+          echo "Testing ${{ matrix.variant }} on ${{ matrix.arch }}..."
+
+          # Pull the image
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }}
+
+          # Verify Node.js version
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} node --version
+
+          # Run pointer compression verification test
+          docker run --rm \
+            -v ${{ github.workspace }}/tests:/tests:ro \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} \
+            node /tests/verify-pointer-compression.js

@@ -1,7 +1,7 @@
 # Node.js Pointer Compression Experiments
 
-[![Build and Publish Docker Images](https://github.com/platformatic/pointer-compression-experiments/actions/workflows/build-publish.yml/badge.svg)](https://github.com/platformatic/pointer-compression-experiments/actions/workflows/build-publish.yml)
-[![Docker Pulls](https://img.shields.io/docker/pulls/platformatic/node-pointer-compression)](https://hub.docker.com/r/platformatic/node-pointer-compression)
+[![Build and Publish Docker Images](https://github.com/platformatic/node-caged/actions/workflows/build-publish.yml/badge.svg)](https://github.com/platformatic/node-caged/actions/workflows/build-publish.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/platformatic/node-caged)](https://hub.docker.com/r/platformatic/node-caged)
 
 This repository contains experiments for building Node.js with V8 pointer compression enabled. Pointer compression is a V8 optimization that reduces memory usage by using 32-bit compressed pointers instead of full 64-bit pointers.
 
@@ -11,16 +11,16 @@ Pre-built multi-architecture images (amd64/arm64) are available on DockerHub:
 
 ```bash
 # Pull the latest image (Debian bookworm, recommended)
-docker pull platformatic/node-pointer-compression:latest
+docker pull platformatic/node-caged:latest
 
 # Or use a specific variant
-docker pull platformatic/node-pointer-compression:bookworm  # Full Debian
-docker pull platformatic/node-pointer-compression:slim      # Minimal Debian
-docker pull platformatic/node-pointer-compression:alpine    # Alpine Linux (experimental)
+docker pull platformatic/node-caged:bookworm  # Full Debian
+docker pull platformatic/node-caged:slim      # Minimal Debian
+docker pull platformatic/node-caged:alpine    # Alpine Linux (experimental)
 
 # Pin to a specific Node.js version
-docker pull platformatic/node-pointer-compression:25.6.1
-docker pull platformatic/node-pointer-compression:25.6.1-slim
+docker pull platformatic/node-caged:25.6.1
+docker pull platformatic/node-caged:25.6.1-slim
 ```
 
 ### Available Tags
@@ -114,9 +114,11 @@ docker build -f docker/alpine/Dockerfile -t node-pointer-compression:alpine .
 
 ## CI/CD
 
-The GitHub Actions workflow automatically builds and publishes multi-architecture images on:
-- Push to `main` branch
-- Tagged releases (`v*`)
-- Manual workflow dispatch
+The GitHub Actions workflow builds and publishes multi-architecture images:
+
+- **Trigger**: Manual only (`workflow_dispatch`)
+- **Version detection**: Automatically detects latest Node.js v25.x release
+- **Duplicate check**: Skips build if version already exists on DockerHub
+- **Force rebuild**: Option to bypass version check and rebuild
 
 Images are built natively on both amd64 and arm64 runners for optimal build performance.

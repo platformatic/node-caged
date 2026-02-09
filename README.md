@@ -18,7 +18,12 @@ docker pull platformatic/node-caged:bookworm  # Full Debian
 docker pull platformatic/node-caged:slim      # Minimal Debian
 docker pull platformatic/node-caged:alpine    # Alpine Linux (experimental)
 
-# Pin to a specific Node.js version
+# Pin to a major Node.js version (recommended for most users)
+docker pull platformatic/node-caged:25
+docker pull platformatic/node-caged:25-slim
+docker pull platformatic/node-caged:25-alpine
+
+# Pin to an exact Node.js version
 docker pull platformatic/node-caged:25.6.1
 docker pull platformatic/node-caged:25.6.1-slim
 ```
@@ -30,8 +35,10 @@ docker pull platformatic/node-caged:25.6.1-slim
 | `latest`, `bookworm` | Latest build on Debian bookworm (recommended) |
 | `slim` | Minimal Debian bookworm-slim runtime (~100MB smaller) |
 | `alpine` | Alpine Linux with musl libc (smallest, experimental) |
-| `{version}` | Specific Node.js version on bookworm (e.g., `25.6.1`) |
-| `{version}-{variant}` | Specific version and variant (e.g., `25.6.1-alpine`) |
+| `{major}` | Latest patch of major version on bookworm (e.g., `25`) |
+| `{major}-{variant}` | Latest patch of major version with variant (e.g., `25-slim`) |
+| `{version}` | Exact Node.js version on bookworm (e.g., `25.6.1`) |
+| `{version}-{variant}` | Exact version and variant (e.g., `25.6.1-alpine`) |
 
 ### Variant Comparison
 

@@ -200,9 +200,10 @@ jobs:
         working-directory: /tmp/digests/${{ matrix.variant }}
         run: |
           NODE_VERSION="${{ needs.check.outputs.node_version }}"
+          MAJOR_VERSION="${NODE_VERSION%%.*}"
           VARIANT="${{ matrix.variant }}"
 
-          echo "Creating manifest for Node.js $NODE_VERSION - $VARIANT"
+          echo "Creating manifest for Node.js $NODE_VERSION (major: $MAJOR_VERSION) - $VARIANT"
 
           # Build the list of image references from digests
           DIGESTS=$(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
@@ -213,12 +214,16 @@ jobs:
           # Always add version-variant tag (e.g., 25.6.1-bookworm)
           TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}-${VARIANT}"
 
+          # Always add major-variant tag (e.g., 25-bookworm)
+          TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}-${VARIANT}"
+
           # Always add variant-only tag (e.g., bookworm, slim, alpine)
           TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VARIANT}"
 
-          # For bookworm (default variant), also add version-only and latest tags
+          # For bookworm (default variant), also add version-only, major-only, and latest tags
           if [ "$VARIANT" = "bookworm" ]; then
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}"
+            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}"
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           fi
 
@@ -312,16 +317,22 @@ jobs:
           echo "| Build Executed | ${{ needs.check.outputs.should_build }} |" >> $GITHUB_STEP_SUMMARY
 
           if [[ "${{ needs.check.outputs.should_build }}" == "true" ]]; then
+            NODE_VERSION="${{ needs.check.outputs.node_version }}"
+            MAJOR_VERSION="${NODE_VERSION%%.*}"
+
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Published Tags" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ needs.check.outputs.node_version }}-bookworm\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ needs.check.outputs.node_version }}-slim\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ needs.check.outputs.node_version }}-alpine\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ needs.check.outputs.node_version }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`bookworm\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`slim\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`alpine\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Full version tags:**" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${NODE_VERSION}-bookworm\`, \`${NODE_VERSION}-slim\`, \`${NODE_VERSION}-alpine\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${NODE_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Major version tags:**" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${MAJOR_VERSION}-bookworm\`, \`${MAJOR_VERSION}-slim\`, \`${MAJOR_VERSION}-alpine\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${MAJOR_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Latest tags:**" >> $GITHUB_STEP_SUMMARY
+            echo "- \`bookworm\`, \`slim\`, \`alpine\`" >> $GITHUB_STEP_SUMMARY
             echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
           else
             echo "" >> $GITHUB_STEP_SUMMARY

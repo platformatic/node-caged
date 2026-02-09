@@ -90,6 +90,7 @@ jobs:
   # =============================================================================
   build:
     runs-on: ${{ matrix.runner }}
+    environment: build
     needs: check
     if: needs.check.outputs.should_build == 'true'
     strategy:
@@ -165,6 +166,7 @@ jobs:
   # =============================================================================
   merge:
     runs-on: ubuntu-latest
+    environment: build
     needs: [check, build]
     if: needs.check.outputs.should_build == 'true'
     strategy:

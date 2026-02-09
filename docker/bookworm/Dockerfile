@@ -1,7 +1,13 @@
 # Dockerfile for Node.js with pointer compression - Debian Bookworm variant
 # Full Debian bookworm with glibc, similar to official Node.js images
 
+# Node.js version to build (tag or branch, e.g., v25.6.1 or v25.x)
+ARG NODE_VERSION=v25.x
+
 FROM debian:bookworm
+
+# Re-declare ARG after FROM to make it available in this stage
+ARG NODE_VERSION
 
 # Avoid interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,7 +30,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /build
 
 # Clone Node.js repository (shallow clone for faster build)
-RUN git clone --depth 1 --branch v25.x https://github.com/nodejs/node.git .
+RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.git .
 
 # Configure with pointer compression enabled
 RUN ./configure --experimental-enable-pointer-compression

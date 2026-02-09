@@ -1,27 +1,97 @@
 # Multi-architecture Docker build and publish workflow
 # Builds Node.js with pointer compression for amd64 and arm64
 # Supports three variants: bookworm (Debian), slim (minimal), alpine
+#
+# Features:
+# - Manual trigger only (workflow_dispatch)
+# - Automatically detects latest Node.js v25.x version
+# - Skips build if version already exists on DockerHub
+# - Force rebuild option to bypass version check
 
 name: Build and Publish Docker Images
 
 on:
-  push:
-    branches: [main]
-    tags: ['v*']
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force rebuild even if version exists on DockerHub'
+        type: boolean
+        default: false
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: platformatic/node-pointer-compression
+  IMAGE_NAME: platformatic/node-caged
 
 jobs:
   # =============================================================================
-  # Phase 1: Build images for each variant/architecture combination
+  # Phase 1: Check if build is needed
+  # =============================================================================
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      node_version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Get latest Node.js v25.x version
+        id: version
+        run: |
+          # Fetch latest v25.x release from nodejs/node
+          VERSION=$(gh api repos/nodejs/node/releases \
+            --jq '[.[] | select(.tag_name | startswith("v25.")) | .tag_name][0]' \
+            | sed 's/^v//')
+
+          if [ -z "$VERSION" ]; then
+            echo "ERROR: Could not determine Node.js v25.x version"
+            exit 1
+          fi
+
+          echo "Latest Node.js v25.x version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Check if version exists on DockerHub
+        id: check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          FORCE="${{ inputs.force }}"
+
+          echo "Checking for version: $VERSION"
+          echo "Force rebuild: $FORCE"
+
+          if [[ "$FORCE" == "true" ]]; then
+            echo "Force rebuild requested, will build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check DockerHub for existing tag (using bookworm as reference)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/${VERSION}-bookworm")
+
+          if [[ "$STATUS" == "200" ]]; then
+            echo "Version $VERSION already exists on DockerHub, skipping build"
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version $VERSION not found on DockerHub (status: $STATUS), will build"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Summary
+        run: |
+          echo "## Build Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node.js Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Force Rebuild:** ${{ inputs.force }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Should Build:** ${{ steps.check.outputs.should_build }}" >> $GITHUB_STEP_SUMMARY
+
+  # =============================================================================
+  # Phase 2: Build images for each variant/architecture combination
   # =============================================================================
   build:
     runs-on: ${{ matrix.runner }}
+    needs: check
+    if: needs.check.outputs.should_build == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -56,7 +126,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -70,20 +139,20 @@ jobs:
           context: .
           file: docker/${{ matrix.variant }}/Dockerfile
           platforms: linux/${{ matrix.arch }}
-          push: ${{ github.event_name != 'pull_request' }}
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
+          build-args: |
+            NODE_VERSION=v${{ needs.check.outputs.node_version }}
+          push: true
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=${{ matrix.variant }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.variant }}-${{ matrix.arch }}
 
       - name: Export digest
-        if: github.event_name != 'pull_request'
         run: |
           mkdir -p /tmp/digests/${{ matrix.variant }}
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${{ matrix.variant }}/${digest#sha256:}"
 
       - name: Upload digest
-        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: digests-${{ matrix.variant }}-${{ matrix.arch }}
@@ -92,20 +161,17 @@ jobs:
           retention-days: 1
 
   # =============================================================================
-  # Phase 2: Create multi-arch manifests for each variant
+  # Phase 3: Create multi-arch manifests for each variant
   # =============================================================================
   merge:
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    needs: build
+    needs: [check, build]
+    if: needs.check.outputs.should_build == 'true'
     strategy:
       matrix:
         variant: [bookworm, slim, alpine]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Download amd64 digest
         uses: actions/download-artifact@v4
         with:
@@ -128,25 +194,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract Node.js version
-        id: node-version
-        run: |
-          # Get one of the digests to pull and extract version
-          digest=$(ls /tmp/digests/${{ matrix.variant }}/ | head -1)
-
-          # Pull the image by digest
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:${digest}
-
-          # Extract Node.js version from the image
-          NODE_VERSION=$(docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:${digest} node --version | sed 's/^v//')
-          echo "version=${NODE_VERSION}" >> $GITHUB_OUTPUT
-          echo "Node.js version: ${NODE_VERSION}"
-
       - name: Create manifest list and push
         working-directory: /tmp/digests/${{ matrix.variant }}
         run: |
-          NODE_VERSION="${{ steps.node-version.outputs.version }}"
+          NODE_VERSION="${{ needs.check.outputs.node_version }}"
           VARIANT="${{ matrix.variant }}"
+
+          echo "Creating manifest for Node.js $NODE_VERSION - $VARIANT"
 
           # Build the list of image references from digests
           DIGESTS=$(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
@@ -166,22 +220,24 @@ jobs:
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           fi
 
+          echo "Tags: $TAGS"
+
           # Create and push the manifest
           docker buildx imagetools create $TAGS $DIGESTS
 
       - name: Inspect manifest
         run: |
-          NODE_VERSION="${{ steps.node-version.outputs.version }}"
+          NODE_VERSION="${{ needs.check.outputs.node_version }}"
           echo "Inspecting manifest for ${{ matrix.variant }}..."
           docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }}
 
   # =============================================================================
-  # Phase 3: Test the published images
+  # Phase 4: Test the published images
   # =============================================================================
   test:
     runs-on: ${{ matrix.runner }}
-    if: github.event_name != 'pull_request'
-    needs: merge
+    needs: [check, merge]
+    if: needs.check.outputs.should_build == 'true'
     strategy:
       matrix:
         include:
@@ -213,16 +269,63 @@ jobs:
 
       - name: Pull and test image
         run: |
+          NODE_VERSION="${{ needs.check.outputs.node_version }}"
           echo "Testing ${{ matrix.variant }} on ${{ matrix.arch }}..."
+          echo "Expected Node.js version: $NODE_VERSION"
 
           # Pull the image
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }}
 
           # Verify Node.js version
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} node --version
+          ACTUAL_VERSION=$(docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} node --version | sed 's/^v//')
+          echo "Actual Node.js version: $ACTUAL_VERSION"
+
+          if [ "$ACTUAL_VERSION" != "$NODE_VERSION" ]; then
+            echo "ERROR: Version mismatch! Expected $NODE_VERSION but got $ACTUAL_VERSION"
+            exit 1
+          fi
 
           # Run pointer compression verification test
           docker run --rm \
             -v ${{ github.workspace }}/tests:/tests:ro \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} \
             node /tests/verify-pointer-compression.js
+
+  # =============================================================================
+  # Summary job - runs even when build is skipped
+  # =============================================================================
+  summary:
+    runs-on: ubuntu-latest
+    needs: [check, test]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Build Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Node.js Version | ${{ needs.check.outputs.node_version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Force Rebuild | ${{ inputs.force }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Executed | ${{ needs.check.outputs.should_build }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.check.outputs.should_build }}" == "true" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Published Tags" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ needs.check.outputs.node_version }}-bookworm\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ needs.check.outputs.node_version }}-slim\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ needs.check.outputs.node_version }}-alpine\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ needs.check.outputs.node_version }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`bookworm\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`slim\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`alpine\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Build was skipped because version ${{ needs.check.outputs.node_version }} already exists on DockerHub." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To force a rebuild, run the workflow with **Force rebuild** enabled." >> $GITHUB_STEP_SUMMARY
+          fi

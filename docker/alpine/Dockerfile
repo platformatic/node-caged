@@ -4,7 +4,13 @@
 # WARNING: This is an experimental build. The combination of musl libc
 # and V8 pointer compression is not extensively tested.
 
+# Node.js version to build (tag or branch, e.g., v25.6.1 or v25.x)
+ARG NODE_VERSION=v25.x
+
 FROM alpine:3.21 AS builder
+
+# Re-declare ARG after FROM to make it available in this stage
+ARG NODE_VERSION
 
 # Install build dependencies
 # Alpine uses musl libc and different package names
@@ -23,7 +29,7 @@ RUN apk add --no-cache \
 WORKDIR /build
 
 # Clone Node.js repository (shallow clone for faster build)
-RUN git clone --depth 1 --branch v25.x https://github.com/nodejs/node.git .
+RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.git .
 
 # Configure with pointer compression enabled
 # Note: Some configure options may differ on Alpine/musl

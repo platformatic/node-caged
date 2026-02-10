@@ -79,7 +79,7 @@ Memory comparison between standard Node.js 22 and pointer-compressed Node.js 25 
 
 ### Tradeoffs
 
-- **Heap limit**: Pointer compression limits the heap to 4GB (vs ~16GB without)
+- **Heap limit**: 4GB per V8 isolate. Each worker thread has its own 4GB limit, so you can exceed 4GB total using multiple workers (e.g., main + 4 workers = 20GB max)
 - **Compatibility**: Requires building Node.js from source with `--experimental-enable-pointer-compression`
 
 ## How It Works

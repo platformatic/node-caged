@@ -1,0 +1,802 @@
+[
+  {
+    "id": "seller-001",
+    "name": "Pro Haven",
+    "slug": "pro-haven",
+    "rating": 4,
+    "salesCount": 4626,
+    "location": "Las Vegas, NV"
+  },
+  {
+    "id": "seller-002",
+    "name": "TCG Store",
+    "slug": "tcg-store",
+    "rating": 3.8,
+    "salesCount": 256155,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-003",
+    "name": "TCG Haven",
+    "slug": "tcg-haven",
+    "rating": 3.8,
+    "salesCount": 468188,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-004",
+    "name": "TCG Market",
+    "slug": "tcg-market",
+    "rating": 3.7,
+    "salesCount": 267095,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-005",
+    "name": "Trading Empire",
+    "slug": "trading-empire",
+    "rating": 4.5,
+    "salesCount": 155821,
+    "location": "Minneapolis, MN"
+  },
+  {
+    "id": "seller-006",
+    "name": "Super Shop",
+    "slug": "super-shop",
+    "rating": 3.8,
+    "salesCount": 444481,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-007",
+    "name": "Game Store",
+    "slug": "game-store",
+    "rating": 4.4,
+    "salesCount": 55873,
+    "location": "Minneapolis, MN"
+  },
+  {
+    "id": "seller-008",
+    "name": "Game Empire",
+    "slug": "game-empire",
+    "rating": 4.1,
+    "salesCount": 483074,
+    "location": "Chicago, IL"
+  },
+  {
+    "id": "seller-009",
+    "name": "Master Store",
+    "slug": "master-store",
+    "rating": 3.9,
+    "salesCount": 171148,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-010",
+    "name": "Trading Hub",
+    "slug": "trading-hub",
+    "rating": 4.5,
+    "salesCount": 223121,
+    "location": "Phoenix, AZ"
+  },
+  {
+    "id": "seller-011",
+    "name": "Super Market",
+    "slug": "super-market",
+    "rating": 4.9,
+    "salesCount": 419676,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-012",
+    "name": "Game Kingdom",
+    "slug": "game-kingdom",
+    "rating": 4.3,
+    "salesCount": 164620,
+    "location": "San Diego, CA"
+  },
+  {
+    "id": "seller-013",
+    "name": "Pro Empire",
+    "slug": "pro-empire",
+    "rating": 5,
+    "salesCount": 405949,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-014",
+    "name": "Master House",
+    "slug": "master-house",
+    "rating": 3.7,
+    "salesCount": 453549,
+    "location": "Minneapolis, MN"
+  },
+  {
+    "id": "seller-015",
+    "name": "Elite Store",
+    "slug": "elite-store",
+    "rating": 3.6,
+    "salesCount": 206504,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-016",
+    "name": "Master Hub",
+    "slug": "master-hub",
+    "rating": 4.1,
+    "salesCount": 236060,
+    "location": "Miami, FL"
+  },
+  {
+    "id": "seller-017",
+    "name": "Elite Hub",
+    "slug": "elite-hub",
+    "rating": 4.5,
+    "salesCount": 454545,
+    "location": "Miami, FL"
+  },
+  {
+    "id": "seller-018",
+    "name": "Pro Kingdom",
+    "slug": "pro-kingdom",
+    "rating": 4.9,
+    "salesCount": 14826,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-019",
+    "name": "Pro Shop",
+    "slug": "pro-shop",
+    "rating": 3.7,
+    "salesCount": 274229,
+    "location": "Las Vegas, NV"
+  },
+  {
+    "id": "seller-020",
+    "name": "Elite Kingdom",
+    "slug": "elite-kingdom",
+    "rating": 4.4,
+    "salesCount": 155475,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-021",
+    "name": "Master Empire",
+    "slug": "master-empire",
+    "rating": 4.2,
+    "salesCount": 298692,
+    "location": "Dallas, TX"
+  },
+  {
+    "id": "seller-022",
+    "name": "Card Hub",
+    "slug": "card-hub",
+    "rating": 4.8,
+    "salesCount": 311325,
+    "location": "Boston, MA"
+  },
+  {
+    "id": "seller-023",
+    "name": "Card Shop",
+    "slug": "card-shop",
+    "rating": 3.7,
+    "salesCount": 390464,
+    "location": "Miami, FL"
+  },
+  {
+    "id": "seller-024",
+    "name": "Elite Empire",
+    "slug": "elite-empire",
+    "rating": 3.6,
+    "salesCount": 352487,
+    "location": "Dallas, TX"
+  },
+  {
+    "id": "seller-025",
+    "name": "Master Market",
+    "slug": "master-market",
+    "rating": 4.2,
+    "salesCount": 73255,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-026",
+    "name": "Trading Zone",
+    "slug": "trading-zone",
+    "rating": 4.4,
+    "salesCount": 465275,
+    "location": "Dallas, TX"
+  },
+  {
+    "id": "seller-027",
+    "name": "Super World",
+    "slug": "super-world",
+    "rating": 4.3,
+    "salesCount": 90494,
+    "location": "San Antonio, TX"
+  },
+  {
+    "id": "seller-028",
+    "name": "Collectible Market",
+    "slug": "collectible-market",
+    "rating": 4.9,
+    "salesCount": 259698,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-029",
+    "name": "TCG Empire",
+    "slug": "tcg-empire",
+    "rating": 4.9,
+    "salesCount": 64716,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-030",
+    "name": "Premium House",
+    "slug": "premium-house",
+    "rating": 3.8,
+    "salesCount": 355933,
+    "location": "New York, NY"
+  },
+  {
+    "id": "seller-031",
+    "name": "Collectible World",
+    "slug": "collectible-world",
+    "rating": 4.1,
+    "salesCount": 335303,
+    "location": "Houston, TX"
+  },
+  {
+    "id": "seller-032",
+    "name": "Collectible Kingdom",
+    "slug": "collectible-kingdom",
+    "rating": 4.5,
+    "salesCount": 475379,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-033",
+    "name": "Card Empire",
+    "slug": "card-empire",
+    "rating": 4.9,
+    "salesCount": 342358,
+    "location": "Philadelphia, PA"
+  },
+  {
+    "id": "seller-034",
+    "name": "Game Market",
+    "slug": "game-market",
+    "rating": 4.7,
+    "salesCount": 68523,
+    "location": "Austin, TX"
+  },
+  {
+    "id": "seller-035",
+    "name": "Trading Market",
+    "slug": "trading-market",
+    "rating": 4.7,
+    "salesCount": 158943,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-036",
+    "name": "Super Empire",
+    "slug": "super-empire",
+    "rating": 3.8,
+    "salesCount": 189261,
+    "location": "Houston, TX"
+  },
+  {
+    "id": "seller-037",
+    "name": "Pro Zone",
+    "slug": "pro-zone",
+    "rating": 3.6,
+    "salesCount": 147250,
+    "location": "Chicago, IL"
+  },
+  {
+    "id": "seller-038",
+    "name": "Collectible House",
+    "slug": "collectible-house",
+    "rating": 4.5,
+    "salesCount": 174339,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-039",
+    "name": "Game Zone",
+    "slug": "game-zone",
+    "rating": 4,
+    "salesCount": 286796,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-040",
+    "name": "Card Market",
+    "slug": "card-market",
+    "rating": 3.9,
+    "salesCount": 473774,
+    "location": "San Antonio, TX"
+  },
+  {
+    "id": "seller-041",
+    "name": "Trading House",
+    "slug": "trading-house",
+    "rating": 3.9,
+    "salesCount": 360706,
+    "location": "Austin, TX"
+  },
+  {
+    "id": "seller-042",
+    "name": "Collectible Hub",
+    "slug": "collectible-hub",
+    "rating": 4.1,
+    "salesCount": 392466,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-043",
+    "name": "Elite Market",
+    "slug": "elite-market",
+    "rating": 4.2,
+    "salesCount": 174867,
+    "location": "Denver, CO"
+  },
+  {
+    "id": "seller-044",
+    "name": "Premium Market",
+    "slug": "premium-market",
+    "rating": 4.1,
+    "salesCount": 127051,
+    "location": "Minneapolis, MN"
+  },
+  {
+    "id": "seller-045",
+    "name": "Collectible Shop",
+    "slug": "collectible-shop",
+    "rating": 4.4,
+    "salesCount": 411797,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-046",
+    "name": "TCG Hub",
+    "slug": "tcg-hub",
+    "rating": 3.9,
+    "salesCount": 207613,
+    "location": "Dallas, TX"
+  },
+  {
+    "id": "seller-047",
+    "name": "Pro Hub",
+    "slug": "pro-hub",
+    "rating": 4.1,
+    "salesCount": 443437,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-048",
+    "name": "Super House",
+    "slug": "super-house",
+    "rating": 3.5,
+    "salesCount": 446311,
+    "location": "Austin, TX"
+  },
+  {
+    "id": "seller-049",
+    "name": "TCG World",
+    "slug": "tcg-world",
+    "rating": 3.6,
+    "salesCount": 446130,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-050",
+    "name": "Pro World",
+    "slug": "pro-world",
+    "rating": 4,
+    "salesCount": 346189,
+    "location": "Denver, CO"
+  },
+  {
+    "id": "seller-051",
+    "name": "Master Haven",
+    "slug": "master-haven",
+    "rating": 4,
+    "salesCount": 127253,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-052",
+    "name": "Collectible Zone",
+    "slug": "collectible-zone",
+    "rating": 3.8,
+    "salesCount": 29756,
+    "location": "Los Angeles, CA"
+  },
+  {
+    "id": "seller-053",
+    "name": "Master Kingdom",
+    "slug": "master-kingdom",
+    "rating": 4.8,
+    "salesCount": 322734,
+    "location": "Las Vegas, NV"
+  },
+  {
+    "id": "seller-054",
+    "name": "Elite Haven",
+    "slug": "elite-haven",
+    "rating": 4.9,
+    "salesCount": 484369,
+    "location": "Austin, TX"
+  },
+  {
+    "id": "seller-055",
+    "name": "Pro Market",
+    "slug": "pro-market",
+    "rating": 4.5,
+    "salesCount": 189856,
+    "location": "Philadelphia, PA"
+  },
+  {
+    "id": "seller-056",
+    "name": "Premium World",
+    "slug": "premium-world",
+    "rating": 4.2,
+    "salesCount": 189780,
+    "location": "Houston, TX"
+  },
+  {
+    "id": "seller-057",
+    "name": "Premium Store",
+    "slug": "premium-store",
+    "rating": 4.2,
+    "salesCount": 278858,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-058",
+    "name": "Master Zone",
+    "slug": "master-zone",
+    "rating": 4.8,
+    "salesCount": 201679,
+    "location": "Chicago, IL"
+  },
+  {
+    "id": "seller-059",
+    "name": "Collectible Empire",
+    "slug": "collectible-empire",
+    "rating": 3.8,
+    "salesCount": 287526,
+    "location": "Minneapolis, MN"
+  },
+  {
+    "id": "seller-060",
+    "name": "Elite Zone",
+    "slug": "elite-zone",
+    "rating": 3.7,
+    "salesCount": 120778,
+    "location": "Philadelphia, PA"
+  },
+  {
+    "id": "seller-061",
+    "name": "TCG Zone",
+    "slug": "tcg-zone",
+    "rating": 4.3,
+    "salesCount": 361435,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-062",
+    "name": "Card Zone",
+    "slug": "card-zone",
+    "rating": 4.5,
+    "salesCount": 331744,
+    "location": "Portland, OR"
+  },
+  {
+    "id": "seller-063",
+    "name": "Trading World",
+    "slug": "trading-world",
+    "rating": 4.2,
+    "salesCount": 122425,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-064",
+    "name": "Game World",
+    "slug": "game-world",
+    "rating": 3.7,
+    "salesCount": 348853,
+    "location": "Denver, CO"
+  },
+  {
+    "id": "seller-065",
+    "name": "Premium Zone",
+    "slug": "premium-zone",
+    "rating": 3.8,
+    "salesCount": 492223,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-066",
+    "name": "Super Store",
+    "slug": "super-store",
+    "rating": 4.8,
+    "salesCount": 363787,
+    "location": "New York, NY"
+  },
+  {
+    "id": "seller-067",
+    "name": "Game House",
+    "slug": "game-house",
+    "rating": 3.9,
+    "salesCount": 80548,
+    "location": "Portland, OR"
+  },
+  {
+    "id": "seller-068",
+    "name": "Trading Shop",
+    "slug": "trading-shop",
+    "rating": 4.9,
+    "salesCount": 145097,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-069",
+    "name": "Premium Shop",
+    "slug": "premium-shop",
+    "rating": 4.6,
+    "salesCount": 290667,
+    "location": "Chicago, IL"
+  },
+  {
+    "id": "seller-070",
+    "name": "Collectible Store",
+    "slug": "collectible-store",
+    "rating": 4,
+    "salesCount": 494463,
+    "location": "Orlando, FL"
+  },
+  {
+    "id": "seller-071",
+    "name": "Premium Kingdom",
+    "slug": "premium-kingdom",
+    "rating": 3.7,
+    "salesCount": 374124,
+    "location": "Los Angeles, CA"
+  },
+  {
+    "id": "seller-072",
+    "name": "Pro Store",
+    "slug": "pro-store",
+    "rating": 4,
+    "salesCount": 76827,
+    "location": "Minneapolis, MN"
+  },
+  {
+    "id": "seller-073",
+    "name": "Premium Hub",
+    "slug": "premium-hub",
+    "rating": 3.8,
+    "salesCount": 81301,
+    "location": "Philadelphia, PA"
+  },
+  {
+    "id": "seller-074",
+    "name": "TCG Kingdom",
+    "slug": "tcg-kingdom",
+    "rating": 4,
+    "salesCount": 39462,
+    "location": "New York, NY"
+  },
+  {
+    "id": "seller-075",
+    "name": "Premium Empire",
+    "slug": "premium-empire",
+    "rating": 4.8,
+    "salesCount": 330864,
+    "location": "Miami, FL"
+  },
+  {
+    "id": "seller-076",
+    "name": "Elite World",
+    "slug": "elite-world",
+    "rating": 4,
+    "salesCount": 99458,
+    "location": "Las Vegas, NV"
+  },
+  {
+    "id": "seller-077",
+    "name": "Pro House",
+    "slug": "pro-house",
+    "rating": 4.2,
+    "salesCount": 197361,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-078",
+    "name": "Card Haven",
+    "slug": "card-haven",
+    "rating": 3.7,
+    "salesCount": 190315,
+    "location": "Philadelphia, PA"
+  },
+  {
+    "id": "seller-079",
+    "name": "Card Kingdom",
+    "slug": "card-kingdom",
+    "rating": 3.6,
+    "salesCount": 26331,
+    "location": "San Diego, CA"
+  },
+  {
+    "id": "seller-080",
+    "name": "Card Store",
+    "slug": "card-store",
+    "rating": 4.6,
+    "salesCount": 60478,
+    "location": "San Antonio, TX"
+  },
+  {
+    "id": "seller-081",
+    "name": "Trading Kingdom",
+    "slug": "trading-kingdom",
+    "rating": 3.9,
+    "salesCount": 212584,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-082",
+    "name": "TCG Shop",
+    "slug": "tcg-shop",
+    "rating": 4.4,
+    "salesCount": 56711,
+    "location": "Las Vegas, NV"
+  },
+  {
+    "id": "seller-083",
+    "name": "Card House",
+    "slug": "card-house",
+    "rating": 5,
+    "salesCount": 40212,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-084",
+    "name": "Super Zone",
+    "slug": "super-zone",
+    "rating": 4.8,
+    "salesCount": 381081,
+    "location": "Houston, TX"
+  },
+  {
+    "id": "seller-085",
+    "name": "Elite Shop",
+    "slug": "elite-shop",
+    "rating": 3.6,
+    "salesCount": 215103,
+    "location": "Phoenix, AZ"
+  },
+  {
+    "id": "seller-086",
+    "name": "TCG House",
+    "slug": "tcg-house",
+    "rating": 3.5,
+    "salesCount": 107213,
+    "location": "Las Vegas, NV"
+  },
+  {
+    "id": "seller-087",
+    "name": "Game Hub",
+    "slug": "game-hub",
+    "rating": 4.4,
+    "salesCount": 469452,
+    "location": "New York, NY"
+  },
+  {
+    "id": "seller-088",
+    "name": "Game Shop",
+    "slug": "game-shop",
+    "rating": 4.5,
+    "salesCount": 317218,
+    "location": "Dallas, TX"
+  },
+  {
+    "id": "seller-089",
+    "name": "Super Hub",
+    "slug": "super-hub",
+    "rating": 5,
+    "salesCount": 422282,
+    "location": "Los Angeles, CA"
+  },
+  {
+    "id": "seller-090",
+    "name": "Super Kingdom",
+    "slug": "super-kingdom",
+    "rating": 4.4,
+    "salesCount": 253764,
+    "location": "Seattle, WA"
+  },
+  {
+    "id": "seller-091",
+    "name": "Super Haven",
+    "slug": "super-haven",
+    "rating": 4.2,
+    "salesCount": 398614,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-092",
+    "name": "Collectible Haven",
+    "slug": "collectible-haven",
+    "rating": 3.7,
+    "salesCount": 110660,
+    "location": "Atlanta, GA"
+  },
+  {
+    "id": "seller-093",
+    "name": "Trading Store",
+    "slug": "trading-store",
+    "rating": 3.9,
+    "salesCount": 295038,
+    "location": "Los Angeles, CA"
+  },
+  {
+    "id": "seller-094",
+    "name": "Card World",
+    "slug": "card-world",
+    "rating": 4.5,
+    "salesCount": 398285,
+    "location": "Detroit, MI"
+  },
+  {
+    "id": "seller-095",
+    "name": "Elite House",
+    "slug": "elite-house",
+    "rating": 4,
+    "salesCount": 350500,
+    "location": "Phoenix, AZ"
+  },
+  {
+    "id": "seller-096",
+    "name": "Premium Haven",
+    "slug": "premium-haven",
+    "rating": 4.7,
+    "salesCount": 391721,
+    "location": "San Antonio, TX"
+  },
+  {
+    "id": "seller-097",
+    "name": "Game Haven",
+    "slug": "game-haven",
+    "rating": 4.7,
+    "salesCount": 220859,
+    "location": "New York, NY"
+  },
+  {
+    "id": "seller-098",
+    "name": "Trading Haven",
+    "slug": "trading-haven",
+    "rating": 3.6,
+    "salesCount": 325610,
+    "location": "San Diego, CA"
+  },
+  {
+    "id": "seller-099",
+    "name": "Master World",
+    "slug": "master-world",
+    "rating": 4.9,
+    "salesCount": 287870,
+    "location": "Chicago, IL"
+  },
+  {
+    "id": "seller-100",
+    "name": "Master Shop",
+    "slug": "master-shop",
+    "rating": 4.7,
+    "salesCount": 103679,
+    "location": "San Diego, CA"
+  }
+]

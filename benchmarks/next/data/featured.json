@@ -1,0 +1,58 @@
+{
+  "banners": [
+    {
+      "id": "banner-1",
+      "imageUrl": "/images/banners/new-releases.webp",
+      "link": "/sets",
+      "title": "New Releases"
+    },
+    {
+      "id": "banner-2",
+      "imageUrl": "/images/banners/trending.webp",
+      "link": "/search?sort=trending",
+      "title": "Trending Now"
+    },
+    {
+      "id": "banner-3",
+      "imageUrl": "/images/banners/deals.webp",
+      "link": "/search?sort=price&order=asc",
+      "title": "Best Deals"
+    }
+  ],
+  "trendingCards": [
+    "yugioh-set-03-156",
+    "digimon-set-04-134",
+    "digimon-set-06-155",
+    "pokemon-set-04-146",
+    "pokemon-set-09-166",
+    "pokemon-set-05-138",
+    "digimon-set-04-115",
+    "digimon-set-10-126",
+    "pokemon-set-03-192",
+    "onepiece-set-01-108",
+    "magic-set-03-159",
+    "magic-set-03-120",
+    "pokemon-set-04-128",
+    "magic-set-08-186",
+    "onepiece-set-04-188",
+    "digimon-set-08-184",
+    "digimon-set-02-147",
+    "onepiece-set-07-139",
+    "magic-set-02-114",
+    "pokemon-set-07-157"
+  ],
+  "newReleases": [
+    "pokemon-set-10",
+    "magic-set-10",
+    "yugioh-set-10",
+    "digimon-set-10",
+    "onepiece-set-10"
+  ],
+  "popularGames": [
+    "pokemon",
+    "magic",
+    "yugioh",
+    "digimon",
+    "onepiece"
+  ]
+}

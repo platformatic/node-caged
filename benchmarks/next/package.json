@@ -1,0 +1,34 @@
+{
+  "name": "next",
+  "scripts": {
+    "dev": "next dev",
+    "build": "NODE_ENV=production next build && echo '[]' > .next/dynamic-css-manifest && echo '{}' > .next/server/subresource-integrity-manifest.json",
+    "start": "NODE_ENV=production next start",
+    "start:node": "NODE_ENV=production next start",
+    "start:watt": "NODE_ENV=production wattpm start"
+  },
+  "dependencies": {
+    "@platformatic/next": "^3.32.0",
+    "@platformatic/runtime": "^3.32.0",
+    "@platformatic/watt-extra": "^1.7.0",
+    "next": "16.1.6",
+    "platformatic": "^3.32.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "wattpm": "^3.32.0"
+  },
+  "devDependencies": {
+    "@platformatic/flame": "^1.4.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=25.0.0"
+  }
+}

@@ -1,0 +1,413 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-node-standard
+  labels:
+    app.kubernetes.io/instance: next-node-standard
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: next-node-standard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: next-node-standard
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: next-node-standard
+      containers:
+        - name: demo-application
+          image: IMAGE_PLACEHOLDER_STANDARD
+          imagePullPolicy: Always
+          env:
+            - name: SCRIPT_NAME
+              value: "start:node"
+            - name: DB_DELAY_MIN
+              value: "1"
+            - name: DB_DELAY_MAX
+              value: "5"
+            - name: DB_DELAY_ENABLED
+              value: "true"
+          ports:
+            - name: 'app'
+              containerPort: 3000
+              protocol: 'TCP'
+          readinessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 15
+          resources:
+            requests:
+              memory: '2Gi'
+              cpu: '1000m'
+            limits:
+              memory: '2Gi'
+              cpu: '1000m'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-node-caged
+  labels:
+    app.kubernetes.io/instance: next-node-caged
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: next-node-caged
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: next-node-caged
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: next-node-caged
+      containers:
+        - name: demo-application
+          image: IMAGE_PLACEHOLDER_CAGED
+          imagePullPolicy: Always
+          env:
+            - name: SCRIPT_NAME
+              value: "start:node"
+            - name: DB_DELAY_MIN
+              value: "1"
+            - name: DB_DELAY_MAX
+              value: "5"
+            - name: DB_DELAY_ENABLED
+              value: "true"
+          ports:
+            - name: 'app'
+              containerPort: 3000
+              protocol: 'TCP'
+          readinessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 15
+          resources:
+            requests:
+              memory: '2Gi'
+              cpu: '1000m'
+            limits:
+              memory: '2Gi'
+              cpu: '1000m'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-watt-standard
+  labels:
+    app.kubernetes.io/instance: next-watt-standard
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: next-watt-standard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: next-watt-standard
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: next-watt-standard
+      containers:
+        - name: demo-application
+          image: IMAGE_PLACEHOLDER_STANDARD
+          imagePullPolicy: Always
+          env:
+            - name: SCRIPT_NAME
+              value: "start:watt"
+            - name: WORKERS
+              value: "2"
+            - name: PLT_SERVER_METRICS
+              value: "false"
+            - name: PLT_SERVER_HEALTH
+              value: "true"
+            - name: BACKLOG
+              value: "1024"
+            - name: DB_DELAY_MIN
+              value: "1"
+            - name: DB_DELAY_MAX
+              value: "5"
+            - name: DB_DELAY_ENABLED
+              value: "true"
+          ports:
+            - name: 'app'
+              containerPort: 3000
+              protocol: 'TCP'
+            - name: 'metrics'
+              containerPort: 9090
+              protocol: 'TCP'
+          readinessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 15
+          resources:
+            requests:
+              memory: '4Gi'
+              cpu: '2000m'
+            limits:
+              memory: '4Gi'
+              cpu: '2000m'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: next-watt-caged
+  labels:
+    app.kubernetes.io/instance: next-watt-caged
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: next-watt-caged
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: next-watt-caged
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: next-watt-caged
+      containers:
+        - name: demo-application
+          image: IMAGE_PLACEHOLDER_CAGED
+          imagePullPolicy: Always
+          env:
+            - name: SCRIPT_NAME
+              value: "start:watt"
+            - name: WORKERS
+              value: "2"
+            - name: PLT_SERVER_METRICS
+              value: "false"
+            - name: PLT_SERVER_HEALTH
+              value: "true"
+            - name: BACKLOG
+              value: "1024"
+            - name: DB_DELAY_MIN
+              value: "1"
+            - name: DB_DELAY_MAX
+              value: "5"
+            - name: DB_DELAY_ENABLED
+              value: "true"
+          ports:
+            - name: 'app'
+              containerPort: 3000
+              protocol: 'TCP'
+            - name: 'metrics'
+              containerPort: 9090
+              protocol: 'TCP'
+          readinessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: '/'
+              port: 'app'
+              scheme: 'HTTP'
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 15
+          resources:
+            requests:
+              memory: '4Gi'
+              cpu: '2000m'
+            limits:
+              memory: '4Gi'
+              cpu: '2000m'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-node-standard
+  labels:
+    app.kubernetes.io/instance: next-node-standard
+  annotations:
+    benchmark.platformatic.dev/expose: "true"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/instance: next-node-standard
+  ports:
+    - name: app
+      protocol: 'TCP'
+      port: 80
+      targetPort: 'app'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-node-caged
+  labels:
+    app.kubernetes.io/instance: next-node-caged
+  annotations:
+    benchmark.platformatic.dev/expose: "true"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/instance: next-node-caged
+  ports:
+    - name: app
+      protocol: 'TCP'
+      port: 80
+      targetPort: 'app'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-watt-standard
+  labels:
+    app.kubernetes.io/instance: next-watt-standard
+  annotations:
+    benchmark.platformatic.dev/expose: "true"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/instance: next-watt-standard
+  ports:
+    - name: app
+      protocol: 'TCP'
+      port: 80
+      targetPort: 'app'
+    - name: 'metrics'
+      protocol: 'TCP'
+      port: 9090
+      targetPort: 'metrics'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: next-watt-caged
+  labels:
+    app.kubernetes.io/instance: next-watt-caged
+  annotations:
+    benchmark.platformatic.dev/expose: "true"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/instance: next-watt-caged
+  ports:
+    - name: app
+      protocol: 'TCP'
+      port: 80
+      targetPort: 'app'
+    - name: 'metrics'
+      protocol: 'TCP'
+      port: 9090
+      targetPort: 'metrics'

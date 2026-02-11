@@ -1,0 +1,452 @@
+[
+  {
+    "id": "pokemon-set-01",
+    "gameId": "pokemon",
+    "name": "Scarlet & Violet",
+    "slug": "scarlet-violet",
+    "releaseDate": "2020-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-01.webp"
+  },
+  {
+    "id": "pokemon-set-02",
+    "gameId": "pokemon",
+    "name": "Paldea Evolved",
+    "slug": "paldea-evolved",
+    "releaseDate": "2020-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-02.webp"
+  },
+  {
+    "id": "pokemon-set-03",
+    "gameId": "pokemon",
+    "name": "Obsidian Flames",
+    "slug": "obsidian-flames",
+    "releaseDate": "2020-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-03.webp"
+  },
+  {
+    "id": "pokemon-set-04",
+    "gameId": "pokemon",
+    "name": "Paradox Rift",
+    "slug": "paradox-rift",
+    "releaseDate": "2021-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-04.webp"
+  },
+  {
+    "id": "pokemon-set-05",
+    "gameId": "pokemon",
+    "name": "Temporal Forces",
+    "slug": "temporal-forces",
+    "releaseDate": "2021-09-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-05.webp"
+  },
+  {
+    "id": "pokemon-set-06",
+    "gameId": "pokemon",
+    "name": "Twilight Masquerade",
+    "slug": "twilight-masquerade",
+    "releaseDate": "2021-11-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-06.webp"
+  },
+  {
+    "id": "pokemon-set-07",
+    "gameId": "pokemon",
+    "name": "Shrouded Fable",
+    "slug": "shrouded-fable",
+    "releaseDate": "2022-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-07.webp"
+  },
+  {
+    "id": "pokemon-set-08",
+    "gameId": "pokemon",
+    "name": "Stellar Crown",
+    "slug": "stellar-crown",
+    "releaseDate": "2022-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-08.webp"
+  },
+  {
+    "id": "pokemon-set-09",
+    "gameId": "pokemon",
+    "name": "Surging Sparks",
+    "slug": "surging-sparks",
+    "releaseDate": "2022-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-09.webp"
+  },
+  {
+    "id": "pokemon-set-10",
+    "gameId": "pokemon",
+    "name": "Prismatic Evolutions",
+    "slug": "prismatic-evolutions",
+    "releaseDate": "2023-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/pokemon-set-10.webp"
+  },
+  {
+    "id": "magic-set-01",
+    "gameId": "magic",
+    "name": "Murders at Karlov Manor",
+    "slug": "murders-at-karlov-manor",
+    "releaseDate": "2020-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-01.webp"
+  },
+  {
+    "id": "magic-set-02",
+    "gameId": "magic",
+    "name": "Outlaws of Thunder Junction",
+    "slug": "outlaws-of-thunder-junction",
+    "releaseDate": "2020-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-02.webp"
+  },
+  {
+    "id": "magic-set-03",
+    "gameId": "magic",
+    "name": "Bloomburrow",
+    "slug": "bloomburrow",
+    "releaseDate": "2020-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-03.webp"
+  },
+  {
+    "id": "magic-set-04",
+    "gameId": "magic",
+    "name": "Duskmourn",
+    "slug": "duskmourn",
+    "releaseDate": "2021-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-04.webp"
+  },
+  {
+    "id": "magic-set-05",
+    "gameId": "magic",
+    "name": "Foundations",
+    "slug": "foundations",
+    "releaseDate": "2021-09-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-05.webp"
+  },
+  {
+    "id": "magic-set-06",
+    "gameId": "magic",
+    "name": "Aetherdrift",
+    "slug": "aetherdrift",
+    "releaseDate": "2021-11-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-06.webp"
+  },
+  {
+    "id": "magic-set-07",
+    "gameId": "magic",
+    "name": "Tarkir Dragonstorm",
+    "slug": "tarkir-dragonstorm",
+    "releaseDate": "2022-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-07.webp"
+  },
+  {
+    "id": "magic-set-08",
+    "gameId": "magic",
+    "name": "Final Fantasy",
+    "slug": "final-fantasy",
+    "releaseDate": "2022-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-08.webp"
+  },
+  {
+    "id": "magic-set-09",
+    "gameId": "magic",
+    "name": "Modern Horizons 3",
+    "slug": "modern-horizons-3",
+    "releaseDate": "2022-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-09.webp"
+  },
+  {
+    "id": "magic-set-10",
+    "gameId": "magic",
+    "name": "Assassin's Creed",
+    "slug": "assassin-s-creed",
+    "releaseDate": "2023-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/magic-set-10.webp"
+  },
+  {
+    "id": "yugioh-set-01",
+    "gameId": "yugioh",
+    "name": "Phantom Nightmare",
+    "slug": "phantom-nightmare",
+    "releaseDate": "2020-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-01.webp"
+  },
+  {
+    "id": "yugioh-set-02",
+    "gameId": "yugioh",
+    "name": "Legacy of Destruction",
+    "slug": "legacy-of-destruction",
+    "releaseDate": "2020-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-02.webp"
+  },
+  {
+    "id": "yugioh-set-03",
+    "gameId": "yugioh",
+    "name": "The Infinite Forbidden",
+    "slug": "the-infinite-forbidden",
+    "releaseDate": "2020-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-03.webp"
+  },
+  {
+    "id": "yugioh-set-04",
+    "gameId": "yugioh",
+    "name": "Rage of the Abyss",
+    "slug": "rage-of-the-abyss",
+    "releaseDate": "2021-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-04.webp"
+  },
+  {
+    "id": "yugioh-set-05",
+    "gameId": "yugioh",
+    "name": "Supreme Darkness",
+    "slug": "supreme-darkness",
+    "releaseDate": "2021-09-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-05.webp"
+  },
+  {
+    "id": "yugioh-set-06",
+    "gameId": "yugioh",
+    "name": "Alliance Insight",
+    "slug": "alliance-insight",
+    "releaseDate": "2021-11-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-06.webp"
+  },
+  {
+    "id": "yugioh-set-07",
+    "gameId": "yugioh",
+    "name": "Crossover Breakers",
+    "slug": "crossover-breakers",
+    "releaseDate": "2022-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-07.webp"
+  },
+  {
+    "id": "yugioh-set-08",
+    "gameId": "yugioh",
+    "name": "Deck Build Pack",
+    "slug": "deck-build-pack",
+    "releaseDate": "2022-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-08.webp"
+  },
+  {
+    "id": "yugioh-set-09",
+    "gameId": "yugioh",
+    "name": "Duelist Nexus",
+    "slug": "duelist-nexus",
+    "releaseDate": "2022-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-09.webp"
+  },
+  {
+    "id": "yugioh-set-10",
+    "gameId": "yugioh",
+    "name": "Cyberstorm Access",
+    "slug": "cyberstorm-access",
+    "releaseDate": "2023-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/yugioh-set-10.webp"
+  },
+  {
+    "id": "digimon-set-01",
+    "gameId": "digimon",
+    "name": "Beginning Observer",
+    "slug": "beginning-observer",
+    "releaseDate": "2020-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-01.webp"
+  },
+  {
+    "id": "digimon-set-02",
+    "gameId": "digimon",
+    "name": "Exceed Apocalypse",
+    "slug": "exceed-apocalypse",
+    "releaseDate": "2020-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-02.webp"
+  },
+  {
+    "id": "digimon-set-03",
+    "gameId": "digimon",
+    "name": "Adventure Box 3",
+    "slug": "adventure-box-3",
+    "releaseDate": "2020-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-03.webp"
+  },
+  {
+    "id": "digimon-set-04",
+    "gameId": "digimon",
+    "name": "Versus Royal Knights",
+    "slug": "versus-royal-knights",
+    "releaseDate": "2021-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-04.webp"
+  },
+  {
+    "id": "digimon-set-05",
+    "gameId": "digimon",
+    "name": "Xros Encounter",
+    "slug": "xros-encounter",
+    "releaseDate": "2021-09-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-05.webp"
+  },
+  {
+    "id": "digimon-set-06",
+    "gameId": "digimon",
+    "name": "Double Diamond",
+    "slug": "double-diamond",
+    "releaseDate": "2021-11-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-06.webp"
+  },
+  {
+    "id": "digimon-set-07",
+    "gameId": "digimon",
+    "name": "New Awakening",
+    "slug": "new-awakening",
+    "releaseDate": "2022-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-07.webp"
+  },
+  {
+    "id": "digimon-set-08",
+    "gameId": "digimon",
+    "name": "Great Legend",
+    "slug": "great-legend",
+    "releaseDate": "2022-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-08.webp"
+  },
+  {
+    "id": "digimon-set-09",
+    "gameId": "digimon",
+    "name": "Battle of Omni",
+    "slug": "battle-of-omni",
+    "releaseDate": "2022-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-09.webp"
+  },
+  {
+    "id": "digimon-set-10",
+    "gameId": "digimon",
+    "name": "Next Adventure",
+    "slug": "next-adventure",
+    "releaseDate": "2023-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/digimon-set-10.webp"
+  },
+  {
+    "id": "onepiece-set-01",
+    "gameId": "onepiece",
+    "name": "Romance Dawn",
+    "slug": "romance-dawn",
+    "releaseDate": "2020-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-01.webp"
+  },
+  {
+    "id": "onepiece-set-02",
+    "gameId": "onepiece",
+    "name": "Paramount War",
+    "slug": "paramount-war",
+    "releaseDate": "2020-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-02.webp"
+  },
+  {
+    "id": "onepiece-set-03",
+    "gameId": "onepiece",
+    "name": "Pillars of Strength",
+    "slug": "pillars-of-strength",
+    "releaseDate": "2020-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-03.webp"
+  },
+  {
+    "id": "onepiece-set-04",
+    "gameId": "onepiece",
+    "name": "Kingdoms of Intrigue",
+    "slug": "kingdoms-of-intrigue",
+    "releaseDate": "2021-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-04.webp"
+  },
+  {
+    "id": "onepiece-set-05",
+    "gameId": "onepiece",
+    "name": "Awakening of the New Era",
+    "slug": "awakening-of-the-new-era",
+    "releaseDate": "2021-09-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-05.webp"
+  },
+  {
+    "id": "onepiece-set-06",
+    "gameId": "onepiece",
+    "name": "Wings of the Captain",
+    "slug": "wings-of-the-captain",
+    "releaseDate": "2021-11-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-06.webp"
+  },
+  {
+    "id": "onepiece-set-07",
+    "gameId": "onepiece",
+    "name": "Memorial Collection",
+    "slug": "memorial-collection",
+    "releaseDate": "2022-01-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-07.webp"
+  },
+  {
+    "id": "onepiece-set-08",
+    "gameId": "onepiece",
+    "name": "500 Years in the Future",
+    "slug": "500-years-in-the-future",
+    "releaseDate": "2022-03-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-08.webp"
+  },
+  {
+    "id": "onepiece-set-09",
+    "gameId": "onepiece",
+    "name": "Two Legends",
+    "slug": "two-legends",
+    "releaseDate": "2022-05-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-09.webp"
+  },
+  {
+    "id": "onepiece-set-10",
+    "gameId": "onepiece",
+    "name": "Royal Blood",
+    "slug": "royal-blood",
+    "releaseDate": "2023-07-01",
+    "totalCards": 200,
+    "imageUrl": "/images/sets/onepiece-set-10.webp"
+  }
+]

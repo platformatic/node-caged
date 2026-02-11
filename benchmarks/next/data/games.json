@@ -1,0 +1,42 @@
+[
+  {
+    "id": "pokemon",
+    "name": "Pokemon",
+    "slug": "pokemon",
+    "description": "Pokemon Trading Card Game - Catch them all!",
+    "imageUrl": "/images/games/pokemon.webp",
+    "cardCount": 2000
+  },
+  {
+    "id": "magic",
+    "name": "Magic: The Gathering",
+    "slug": "magic",
+    "description": "The original trading card game",
+    "imageUrl": "/images/games/magic.webp",
+    "cardCount": 2000
+  },
+  {
+    "id": "yugioh",
+    "name": "Yu-Gi-Oh!",
+    "slug": "yugioh",
+    "description": "It's time to duel!",
+    "imageUrl": "/images/games/yugioh.webp",
+    "cardCount": 2000
+  },
+  {
+    "id": "digimon",
+    "name": "Digimon",
+    "slug": "digimon",
+    "description": "Digital Monsters Card Game",
+    "imageUrl": "/images/games/digimon.webp",
+    "cardCount": 2000
+  },
+  {
+    "id": "onepiece",
+    "name": "One Piece",
+    "slug": "onepiece",
+    "description": "One Piece Card Game",
+    "imageUrl": "/images/games/onepiece.webp",
+    "cardCount": 2000
+  }
+]

@@ -82,6 +82,19 @@ Memory comparison between standard Node.js 22 and pointer-compressed Node.js 25 
 - **Heap limit**: 4GB per V8 isolate. Each worker thread has its own 4GB limit, so you can exceed 4GB total using multiple workers (e.g., main + 4 workers = 20GB max)
 - **Compatibility**: Requires building Node.js from source with `--experimental-enable-pointer-compression`
 
+### Native Addon Compatibility
+
+**N-API addons work correctly** with pointer compression. Tested and verified:
+
+| Addon | Type | Status |
+|-------|------|--------|
+| `bcrypt` | N-API | ✓ Works |
+| `sharp` | N-API | ✓ Works |
+| `@napi-rs/uuid` | Rust N-API | ✓ Works |
+| `@node-rs/argon2` | Rust N-API | ✓ Works |
+
+**Non-N-API native addons may crash.** Addons using the older V8 native addon API (like `better-sqlite3`) are not compatible with pointer compression and will segfault. Always prefer N-API-based alternatives.
+
 ## How It Works
 
 The Dockerfile builds Node.js from the v25.x branch with the `--experimental-enable-pointer-compression` configure flag. This enables V8's pointer compression feature which uses 32-bit offsets from a base address instead of full 64-bit pointers.
@@ -90,6 +103,8 @@ The Dockerfile builds Node.js from the v25.x branch with the `--experimental-ena
 
 - `tests/verify-pointer-compression.js` - Verifies pointer compression is enabled by checking heap limits
 - `tests/memory-benchmark.js` - Benchmarks memory usage with pointer-heavy data structures
+- `tests/worker-heap-limits.js` - Verifies each worker thread has its own 4GB heap limit
+- `tests/napi-addon-test.js` - Tests N-API native addon compatibility (requires npm install)
 
 ## Building Locally
 

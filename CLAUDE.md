@@ -8,21 +8,21 @@ This repository contains experiments for building Node.js with V8 pointer compre
 
 ## Build Commands
 
-Build the Docker image with pointer-compression-enabled Node.js:
+Build a Docker image variant (bookworm, slim, or alpine):
 ```bash
-docker build --network=host -t node-pointer-compression .
+docker build --network=host -f docker/bookworm/Dockerfile -t node-caged .
 ```
 
 Note: `--network=host` is required to avoid DNS resolution issues during the build.
 
 Run the container interactively:
 ```bash
-docker run -it node-pointer-compression
+docker run -it node-caged
 ```
 
 Run a specific script:
 ```bash
-docker run -v $(pwd):/app node-pointer-compression node /app/your-script.js
+docker run -v $(pwd):/app node-caged node /app/your-script.js
 ```
 
 ## Testing
@@ -38,10 +38,12 @@ Test scripts in `tests/`:
 
 ## Architecture
 
-The Dockerfile builds Node.js from the v25.x branch with the `--experimental-enable-pointer-compression` configure flag. This enables V8's pointer compression feature which is not enabled by default in Node.js builds.
+Dockerfiles in `docker/` build Node.js from the v25.x branch with the `--experimental-enable-pointer-compression` configure flag. Three variants are available:
+- `docker/bookworm/Dockerfile` - Full Debian bookworm (default)
+- `docker/slim/Dockerfile` - Minimal Debian
+- `docker/alpine/Dockerfile` - Alpine Linux
 
 Key build details:
-- Base image: Ubuntu 24.04
 - Compiler: GCC 12 (required for C++20 support in V8)
-- Node.js branch: v25.x
+- Node.js branch: v25.x (configurable via `NODE_VERSION` build arg)
 - Build flag: `--experimental-enable-pointer-compression`

@@ -113,6 +113,8 @@ Some packages on npm do not ship source files needed to rebuild. In these cases,
 
 ##### `@datadog/pprof`
 
+This was tested against [@datadog/pprof](https://www.npmjs.com/package/@datadog/pprof) 5.13.5.
+
 ```bash
 cd node_modules/@datadog/pprof
 pnpm install --ignore-scripts

@@ -93,7 +93,37 @@ Memory comparison between standard Node.js 22 and pointer-compressed Node.js 25 
 | `@napi-rs/uuid` | Rust N-API | ✓ Works |
 | `@node-rs/argon2` | Rust N-API | ✓ Works |
 
-**Non-N-API native addons may crash.** Addons using the older V8 native addon API (like `better-sqlite3`) are not compatible with pointer compression and will segfault. Always prefer N-API-based alternatives.
+**Non-N-API native addons may crash.** Addons using the older V8 native addon API (like `better-sqlite3`) are not compatible with pointer compression and can segfault. Packages that rely on `nan` are especially affected. Always prefer N-API-based alternatives.
+
+### Workarounds for Non-N-API Addons
+
+If your dependency uses `nan` and does not provide binaries built for this runtime, you must force a local rebuild of its native addon.
+
+If the package in `node_modules` still contains source files, try a normal rebuild:
+
+```bash
+cd node_modules/<package-name>
+pnpm install --ignore-scripts
+pnpm run rebuild
+s```
+
+Some packages on npm do not ship source files needed to rebuild. In these cases, you may need to fetch the source from the git repository, copy it back into `node_modules`, and run a manual rebuild.
+
+#### Known affected package example
+
+##### `@datadog/pprof`
+
+```bash
+cd node_modules/@datadog/pprof
+pnpm install --ignore-scripts
+PPROF_VERSION=$(node -p "require('./package.json').version")
+PPROF_REPO=$(node -p "require('./package.json').repository.url.replace('git+', '')")
+git clone -q --depth=1 --branch=v$PPROF_VERSION $PPROF_REPO /tmp/pprof-nodejs > /dev/null 2>&1
+mv /tmp/pprof-nodejs/{binding.gyp,bindings} .
+rm -rf /tmp/pprof-nodejs
+pnpm run rebuild
+cd ../../..
+```
 
 ## How It Works
 

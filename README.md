@@ -105,7 +105,7 @@ If the package in `node_modules` still contains source files, try a normal rebui
 cd node_modules/<package-name>
 pnpm install --ignore-scripts
 pnpm run rebuild
-s```
+```
 
 Some packages on npm do not ship source files needed to rebuild. In these cases, you may need to fetch the source from the git repository, copy it back into `node_modules`, and run a manual rebuild.
 

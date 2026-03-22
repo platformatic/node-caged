@@ -33,7 +33,9 @@ WORKDIR /build
 RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.git .
 
 # Configure with pointer compression enabled
-RUN ./configure --experimental-enable-pointer-compression
+RUN ./configure \
+    --experimental-enable-pointer-compression \
+    --experimental-pointer-compression-shared-cage
 
 # Build Node.js using all available cores
 # ccache is available for faster rebuilds if cache is mounted

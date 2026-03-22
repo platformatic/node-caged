@@ -35,6 +35,7 @@ RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.
 # Note: Some configure options may differ on Alpine/musl
 RUN ./configure \
     --experimental-enable-pointer-compression \
+    --experimental-pointer-compression-shared-cage \
     --prefix=/usr/local
 
 # Build Node.js using all available cores

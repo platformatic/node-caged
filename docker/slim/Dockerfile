@@ -59,6 +59,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy Node.js installation from builder
 COPY --from=builder /node-install/usr/local /usr/local
+COPY ../scripts/rebuild-nan-addons.sh /usr/local/bin/rebuild-nan-addons.sh
 
 # Verify installation
 RUN node --version && npm --version

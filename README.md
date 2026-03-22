@@ -95,6 +95,19 @@ Memory comparison between standard Node.js 22 and pointer-compressed Node.js 25 
 
 **Non-N-API native addons may crash.** Addons using the older V8 native addon API (like `better-sqlite3`) are not compatible with pointer compression and will segfault. Always prefer N-API-based alternatives.
 
+**NAN addons** (which use the older ABI-specific native addon API) must be rebuilt from source against this Node.js build. After running `npm install`, use the provided script to detect and rebuild any NAN addons automatically:
+
+```bash
+# Default: scans /usr/src/app/node_modules
+rebuild-nan-addons.sh
+
+# Or specify a custom path
+REBUILD_NAN_ADDONS_PATH=/path/to/node_modules rebuild-nan-addons.sh
+
+# Detect only (no rebuild)
+REBUILD_NAN_ADDONS_DETECT_ONLY=1 rebuild-nan-addons.sh
+```
+
 ## How It Works
 
 The Dockerfile builds Node.js from the v25.x branch with the `--experimental-enable-pointer-compression` configure flag. This enables V8's pointer compression feature which uses 32-bit offsets from a base address instead of full 64-bit pointers.

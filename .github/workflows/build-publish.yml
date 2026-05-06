@@ -1,11 +1,13 @@
 # Multi-architecture Docker build and publish workflow
 # Builds Node.js with pointer compression for amd64 and arm64
 # Supports three variants: bookworm (Debian), slim (minimal), alpine
+# Supports multiple Node.js majors: 25.x and 26.x
 #
 # Features:
 # - Manual trigger only (workflow_dispatch)
-# - Automatically detects latest Node.js v25.x version
-# - Skips build if version already exists on DockerHub
+# - Choose which Node.js major to build (25, 26, or all)
+# - Automatically detects latest release for each selected major
+# - Skips a major if its current version already exists on DockerHub
 # - Force rebuild option to bypass version check
 
 name: Build and Publish Docker Images
@@ -13,6 +15,14 @@ name: Build and Publish Docker Images
 on:
   workflow_dispatch:
     inputs:
+      node_major:
+        description: 'Which Node.js major to build'
+        type: choice
+        options:
+          - all
+          - '25'
+          - '26'
+        default: all
       force:
         description: 'Force rebuild even if version exists on DockerHub'
         type: boolean
@@ -21,72 +31,102 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: platformatic/node-caged
+  # The major that owns floating tags (`latest`, `bookworm`, `slim`, `alpine`,
+  # `{version}`, `{version}-{variant}` without major prefix).
+  LATEST_MAJOR: '26'
 
 jobs:
   # =============================================================================
-  # Phase 1: Check if build is needed
+  # Phase 1: Resolve which (major, version) pairs need building
   # =============================================================================
   check:
     runs-on: ubuntu-latest
     outputs:
-      should_build: ${{ steps.check.outputs.should_build }}
-      node_version: ${{ steps.version.outputs.version }}
+      should_build: ${{ steps.compute.outputs.should_build }}
+      builds_matrix: ${{ steps.compute.outputs.builds_matrix }}
     steps:
-      - name: Get latest Node.js v25.x version
-        id: version
-        run: |
-          # Fetch latest v25.x release from nodejs/node
-          VERSION=$(gh api repos/nodejs/node/releases \
-            --jq '[.[] | select(.tag_name | startswith("v25.")) | .tag_name][0]' \
-            | sed 's/^v//')
-
-          if [ -z "$VERSION" ]; then
-            echo "ERROR: Could not determine Node.js v25.x version"
-            exit 1
-          fi
-
-          echo "Latest Node.js v25.x version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Compute build matrix
+        id: compute
         env:
           GH_TOKEN: ${{ github.token }}
-
-      - name: Check if version exists on DockerHub
-        id: check
+          NODE_MAJOR_INPUT: ${{ inputs.node_major }}
+          FORCE: ${{ inputs.force }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          FORCE="${{ inputs.force }}"
+          set -euo pipefail
 
-          echo "Checking for version: $VERSION"
-          echo "Force rebuild: $FORCE"
-
-          if [[ "$FORCE" == "true" ]]; then
-            echo "Force rebuild requested, will build"
-            echo "should_build=true" >> $GITHUB_OUTPUT
-            exit 0
+          if [ "$NODE_MAJOR_INPUT" = "all" ]; then
+            MAJORS=(25 26)
+          else
+            MAJORS=("$NODE_MAJOR_INPUT")
           fi
 
-          # Check DockerHub for existing tag (using bookworm as reference)
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/${VERSION}-bookworm")
+          BUILDS="[]"
 
-          if [[ "$STATUS" == "200" ]]; then
-            echo "Version $VERSION already exists on DockerHub, skipping build"
-            echo "should_build=false" >> $GITHUB_OUTPUT
+          for MAJOR in "${MAJORS[@]}"; do
+            echo "::group::Resolving Node.js v${MAJOR}.x"
+
+            VERSION=$(gh api repos/nodejs/node/releases --paginate \
+              --jq "[.[] | select(.tag_name | startswith(\"v${MAJOR}.\")) | .tag_name][0]" \
+              | sed 's/^v//')
+
+            if [ -z "$VERSION" ]; then
+              echo "No published v${MAJOR}.x release found, will build from v${MAJOR}.x branch tip"
+              VERSION="${MAJOR}.x"
+            else
+              echo "Latest v${MAJOR}.x version: $VERSION"
+            fi
+
+            if [ "$FORCE" = "true" ]; then
+              echo "Force rebuild requested for v${MAJOR}.x"
+              SHOULD=true
+            elif [[ "$VERSION" == *.x ]]; then
+              # Branch tips don't have stable version tags; always rebuild
+              echo "Building from branch tip, will rebuild"
+              SHOULD=true
+            else
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+                "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/${VERSION}-bookworm")
+              if [ "$STATUS" = "200" ]; then
+                echo "Version $VERSION already exists on DockerHub, skipping"
+                SHOULD=false
+              else
+                echo "Version $VERSION not on DockerHub (status $STATUS), will build"
+                SHOULD=true
+              fi
+            fi
+
+            if [ "$SHOULD" = "true" ]; then
+              BUILDS=$(echo "$BUILDS" | jq -c \
+                --arg major "$MAJOR" \
+                --arg version "$VERSION" \
+                '. + [{major: $major, version: $version}]')
+            fi
+
+            echo "::endgroup::"
+          done
+
+          echo "Computed builds: $BUILDS"
+          COUNT=$(echo "$BUILDS" | jq 'length')
+
+          echo "builds_matrix=$BUILDS" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -gt 0 ]; then
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Version $VERSION not found on DockerHub (status: $STATUS), will build"
-            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Summary
         run: |
           echo "## Build Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Node.js Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Force Rebuild:** ${{ inputs.force }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Should Build:** ${{ steps.check.outputs.should_build }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Selected major:** ${{ inputs.node_major }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Force rebuild:** ${{ inputs.force }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Should build:** ${{ steps.compute.outputs.should_build }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Builds:** \`${{ steps.compute.outputs.builds_matrix }}\`" >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
-  # Phase 2: Build images for each variant/architecture combination
+  # Phase 2: Build images for each (major, variant, arch) combination
   # =============================================================================
   build:
     runs-on: ${{ matrix.runner }}
@@ -96,27 +136,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        build: ${{ fromJSON(needs.check.outputs.builds_matrix) }}
+        variant: [bookworm, slim, alpine]
+        arch: [amd64, arm64]
         include:
-          # Bookworm builds
-          - variant: bookworm
-            arch: amd64
+          - arch: amd64
             runner: ubuntu-latest
-          - variant: bookworm
-            arch: arm64
-            runner: ubuntu-24.04-arm
-          # Slim builds
-          - variant: slim
-            arch: amd64
-            runner: ubuntu-latest
-          - variant: slim
-            arch: arm64
-            runner: ubuntu-24.04-arm
-          # Alpine builds
-          - variant: alpine
-            arch: amd64
-            runner: ubuntu-latest
-          - variant: alpine
-            arch: arm64
+          - arch: arm64
             runner: ubuntu-24.04-arm
 
     steps:
@@ -141,28 +167,28 @@ jobs:
           file: docker/${{ matrix.variant }}/Dockerfile
           platforms: linux/${{ matrix.arch }}
           build-args: |
-            NODE_VERSION=v${{ needs.check.outputs.node_version }}
+            NODE_VERSION=v${{ matrix.build.version }}
           push: true
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
-          cache-from: type=gha,scope=${{ matrix.variant }}-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.variant }}-${{ matrix.arch }}
+          cache-from: type=gha,scope=${{ matrix.build.major }}-${{ matrix.variant }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.build.major }}-${{ matrix.variant }}-${{ matrix.arch }}
 
       - name: Export digest
         run: |
-          mkdir -p /tmp/digests/${{ matrix.variant }}
+          mkdir -p /tmp/digests/${{ matrix.build.major }}/${{ matrix.variant }}
           digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${{ matrix.variant }}/${digest#sha256:}"
+          touch "/tmp/digests/${{ matrix.build.major }}/${{ matrix.variant }}/${digest#sha256:}"
 
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ matrix.variant }}-${{ matrix.arch }}
-          path: /tmp/digests/${{ matrix.variant }}/*
+          name: digests-${{ matrix.build.major }}-${{ matrix.variant }}-${{ matrix.arch }}
+          path: /tmp/digests/${{ matrix.build.major }}/${{ matrix.variant }}/*
           if-no-files-found: error
           retention-days: 1
 
   # =============================================================================
-  # Phase 3: Create multi-arch manifests for each variant
+  # Phase 3: Create multi-arch manifests for each (major, variant)
   # =============================================================================
   merge:
     runs-on: ubuntu-latest
@@ -171,20 +197,21 @@ jobs:
     if: needs.check.outputs.should_build == 'true'
     strategy:
       matrix:
+        build: ${{ fromJSON(needs.check.outputs.builds_matrix) }}
         variant: [bookworm, slim, alpine]
 
     steps:
       - name: Download amd64 digest
         uses: actions/download-artifact@v4
         with:
-          name: digests-${{ matrix.variant }}-amd64
-          path: /tmp/digests/${{ matrix.variant }}
+          name: digests-${{ matrix.build.major }}-${{ matrix.variant }}-amd64
+          path: /tmp/digests/${{ matrix.build.major }}/${{ matrix.variant }}
 
       - name: Download arm64 digest
         uses: actions/download-artifact@v4
         with:
-          name: digests-${{ matrix.variant }}-arm64
-          path: /tmp/digests/${{ matrix.variant }}
+          name: digests-${{ matrix.build.major }}-${{ matrix.variant }}-arm64
+          path: /tmp/digests/${{ matrix.build.major }}/${{ matrix.variant }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -197,46 +224,55 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Create manifest list and push
-        working-directory: /tmp/digests/${{ matrix.variant }}
+        working-directory: /tmp/digests/${{ matrix.build.major }}/${{ matrix.variant }}
         run: |
-          NODE_VERSION="${{ needs.check.outputs.node_version }}"
-          MAJOR_VERSION="${NODE_VERSION%%.*}"
+          NODE_VERSION="${{ matrix.build.version }}"
+          MAJOR_VERSION="${{ matrix.build.major }}"
           VARIANT="${{ matrix.variant }}"
+          IS_LATEST_MAJOR="false"
+          if [ "$MAJOR_VERSION" = "${{ env.LATEST_MAJOR }}" ]; then
+            IS_LATEST_MAJOR="true"
+          fi
 
           echo "Creating manifest for Node.js $NODE_VERSION (major: $MAJOR_VERSION) - $VARIANT"
+          echo "Is latest major: $IS_LATEST_MAJOR"
 
-          # Build the list of image references from digests
           DIGESTS=$(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
 
-          # Tags to create
           TAGS=""
 
-          # Always add version-variant tag (e.g., 25.6.1-bookworm)
-          TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}-${VARIANT}"
-
-          # Always add major-variant tag (e.g., 25-bookworm)
+          # Always: major-variant tag (e.g. 25-bookworm, 26-bookworm)
           TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}-${VARIANT}"
 
-          # Always add variant-only tag (e.g., bookworm, slim, alpine)
-          TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VARIANT}"
+          # Always: full version-variant tag (skip when version is a branch tip)
+          if [[ "$NODE_VERSION" != *.x ]]; then
+            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}-${VARIANT}"
+          fi
 
-          # For bookworm (default variant), also add version-only, major-only, and latest tags
+          # Only the highest major owns floating variant-only tags (bookworm, slim, alpine)
+          if [ "$IS_LATEST_MAJOR" = "true" ]; then
+            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VARIANT}"
+          fi
+
+          # bookworm is the default variant — gets unsuffixed major/version/latest tags
           if [ "$VARIANT" = "bookworm" ]; then
-            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}"
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}"
-            TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            if [[ "$NODE_VERSION" != *.x ]]; then
+              TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}"
+            fi
+            if [ "$IS_LATEST_MAJOR" = "true" ]; then
+              TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+            fi
           fi
 
           echo "Tags: $TAGS"
 
-          # Create and push the manifest
           docker buildx imagetools create $TAGS $DIGESTS
 
       - name: Inspect manifest
         run: |
-          NODE_VERSION="${{ needs.check.outputs.node_version }}"
-          echo "Inspecting manifest for ${{ matrix.variant }}..."
-          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }}
+          echo "Inspecting manifest for ${{ matrix.build.major }}/${{ matrix.variant }}..."
+          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.build.major }}-${{ matrix.variant }}
 
   # =============================================================================
   # Phase 4: Test the published images
@@ -247,28 +283,15 @@ jobs:
     needs: [check, merge]
     if: needs.check.outputs.should_build == 'true'
     strategy:
+      fail-fast: false
       matrix:
+        build: ${{ fromJSON(needs.check.outputs.builds_matrix) }}
+        variant: [bookworm, slim, alpine]
+        arch: [amd64, arm64]
         include:
-          # Bookworm tests
-          - variant: bookworm
-            arch: amd64
+          - arch: amd64
             runner: ubuntu-latest
-          - variant: bookworm
-            arch: arm64
-            runner: ubuntu-24.04-arm
-          # Slim tests
-          - variant: slim
-            arch: amd64
-            runner: ubuntu-latest
-          - variant: slim
-            arch: arm64
-            runner: ubuntu-24.04-arm
-          # Alpine tests
-          - variant: alpine
-            arch: amd64
-            runner: ubuntu-latest
-          - variant: alpine
-            arch: arm64
+          - arch: arm64
             runner: ubuntu-24.04-arm
 
     steps:
@@ -284,26 +307,33 @@ jobs:
 
       - name: Pull and test image
         run: |
-          NODE_VERSION="${{ needs.check.outputs.node_version }}"
-          echo "Testing ${{ matrix.variant }} on ${{ matrix.arch }}..."
+          NODE_VERSION="${{ matrix.build.version }}"
+          MAJOR="${{ matrix.build.major }}"
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR}-${{ matrix.variant }}"
+
+          echo "Testing $IMAGE on ${{ matrix.arch }}..."
           echo "Expected Node.js version: $NODE_VERSION"
 
-          # Pull the image
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }}
+          docker pull "$IMAGE"
 
-          # Verify Node.js version
-          ACTUAL_VERSION=$(docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} node --version | sed 's/^v//')
+          ACTUAL_VERSION=$(docker run --rm "$IMAGE" node --version | sed 's/^v//')
           echo "Actual Node.js version: $ACTUAL_VERSION"
 
-          if [ "$ACTUAL_VERSION" != "$NODE_VERSION" ]; then
+          # Skip strict version check when building branch tip (no stable tag yet)
+          if [[ "$NODE_VERSION" != *.x ]] && [ "$ACTUAL_VERSION" != "$NODE_VERSION" ]; then
             echo "ERROR: Version mismatch! Expected $NODE_VERSION but got $ACTUAL_VERSION"
             exit 1
           fi
 
-          # Run pointer compression verification test
+          ACTUAL_MAJOR="${ACTUAL_VERSION%%.*}"
+          if [ "$ACTUAL_MAJOR" != "$MAJOR" ]; then
+            echo "ERROR: Major mismatch! Expected $MAJOR but got $ACTUAL_MAJOR"
+            exit 1
+          fi
+
           docker run --rm \
             -v ${{ github.workspace }}/tests:/tests:ro \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.variant }} \
+            "$IMAGE" \
             node /tests/verify-pointer-compression.js
 
   # =============================================================================
@@ -315,38 +345,29 @@ jobs:
     if: always()
     steps:
       - name: Generate summary
+        env:
+          BUILDS_MATRIX: ${{ needs.check.outputs.builds_matrix }}
+          SHOULD_BUILD: ${{ needs.check.outputs.should_build }}
+          LATEST_MAJOR: ${{ env.LATEST_MAJOR }}
         run: |
           echo "## Build Pipeline Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Node.js Version | ${{ needs.check.outputs.node_version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Force Rebuild | ${{ inputs.force }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build Executed | ${{ needs.check.outputs.should_build }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Selected major | ${{ inputs.node_major }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Force rebuild | ${{ inputs.force }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build executed | $SHOULD_BUILD |" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "${{ needs.check.outputs.should_build }}" == "true" ]]; then
-            NODE_VERSION="${{ needs.check.outputs.node_version }}"
-            MAJOR_VERSION="${NODE_VERSION%%.*}"
-
+          if [ "$SHOULD_BUILD" = "true" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Published Tags" >> $GITHUB_STEP_SUMMARY
+            echo "### Published builds" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Full version tags:**" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${NODE_VERSION}-bookworm\`, \`${NODE_VERSION}-slim\`, \`${NODE_VERSION}-alpine\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${NODE_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "$BUILDS_MATRIX" | jq -r '.[] | "- Node.js v\(.version) (major \(.major))"' >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Major version tags:**" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${MAJOR_VERSION}-bookworm\`, \`${MAJOR_VERSION}-slim\`, \`${MAJOR_VERSION}-alpine\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${MAJOR_VERSION}\`" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Latest tags:**" >> $GITHUB_STEP_SUMMARY
-            echo "- \`bookworm\`, \`slim\`, \`alpine\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "Floating tags (\`latest\`, \`bookworm\`, \`slim\`, \`alpine\`) are owned by major \`$LATEST_MAJOR\`." >> $GITHUB_STEP_SUMMARY
           else
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Skipped" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Build was skipped because version ${{ needs.check.outputs.node_version }} already exists on DockerHub." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "To force a rebuild, run the workflow with **Force rebuild** enabled." >> $GITHUB_STEP_SUMMARY
+            echo "All selected majors are already published on DockerHub. Re-run with **Force rebuild** to bypass the version check." >> $GITHUB_STEP_SUMMARY
           fi

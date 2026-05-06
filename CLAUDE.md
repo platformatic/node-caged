@@ -38,12 +38,13 @@ Test scripts in `tests/`:
 
 ## Architecture
 
-Dockerfiles in `docker/` build Node.js from the v25.x branch with the `--experimental-enable-pointer-compression` configure flag. Three variants are available:
+Dockerfiles in `docker/` build Node.js with the `--experimental-enable-pointer-compression` configure flag. Three variants are available:
 - `docker/bookworm/Dockerfile` - Full Debian bookworm (default)
 - `docker/slim/Dockerfile` - Minimal Debian
 - `docker/alpine/Dockerfile` - Alpine Linux
 
 Key build details:
 - Compiler: GCC 12 (required for C++20 support in V8)
-- Node.js branch: v25.x (configurable via `NODE_VERSION` build arg)
+- Node.js branches built in CI: v25.x and v26.x (selectable via the `node_major` workflow input; defaults to `all`). Local Dockerfile default is `v25.x`, override with `--build-arg NODE_VERSION=v26.x`.
 - Build flag: `--experimental-enable-pointer-compression`
+- Floating Docker tags (`latest`, `bookworm`, `slim`, `alpine`) track the highest major; the `LATEST_MAJOR` env var in `.github/workflows/build-publish.yml` controls this.

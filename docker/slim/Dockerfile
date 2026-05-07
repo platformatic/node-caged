@@ -16,17 +16,24 @@ ARG NODE_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    git \
-    python3 \
-    python3-pip \
-    curl \
-    ca-certificates \
-    make \
-    ccache \
-    libssl-dev \
+# GCC 13 from bookworm-backports — Node.js v26 V8 fails to compile with gcc-12.
+RUN echo 'deb http://deb.debian.org/debian bookworm-backports main' \
+        > /etc/apt/sources.list.d/backports.list \
+    && apt-get update && apt-get install -y \
+        build-essential \
+        git \
+        python3 \
+        python3-pip \
+        curl \
+        ca-certificates \
+        make \
+        ccache \
+        libssl-dev \
+    && apt-get install -y -t bookworm-backports gcc-13 g++-13 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV CC=gcc-13
+ENV CXX=g++-13
 
 # Set working directory for build
 WORKDIR /build

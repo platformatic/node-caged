@@ -13,18 +13,26 @@ ARG NODE_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
-# GCC 12 is default in bookworm and supports C++20 required by V8
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    git \
-    python3 \
-    python3-pip \
-    curl \
-    ca-certificates \
-    make \
-    ccache \
-    libssl-dev \
+# GCC 13 from bookworm-backports — Node.js v26 V8 fails to compile with gcc-12
+# due to a static_assert in builtins-iterator-inl.h that gcc-12 instantiates
+# in unreachable branches.
+RUN echo 'deb http://deb.debian.org/debian bookworm-backports main' \
+        > /etc/apt/sources.list.d/backports.list \
+    && apt-get update && apt-get install -y \
+        build-essential \
+        git \
+        python3 \
+        python3-pip \
+        curl \
+        ca-certificates \
+        make \
+        ccache \
+        libssl-dev \
+    && apt-get install -y -t bookworm-backports gcc-13 g++-13 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV CC=gcc-13
+ENV CXX=g++-13
 
 # Set working directory for build
 WORKDIR /build

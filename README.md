@@ -130,6 +130,19 @@ pnpm run rebuild
 cd ../../..
 ```
 
+**NAN addons** (which use the older ABI-specific native addon API) must be rebuilt from source against this Node.js build. After running `npm install`, use the provided script to detect and rebuild any NAN addons automatically:
+
+```bash
+# Default: scans /usr/src/app/node_modules
+rebuild-nan-addons.sh
+
+# Or specify a custom path
+REBUILD_NAN_ADDONS_PATH=/path/to/node_modules rebuild-nan-addons.sh
+
+# Detect only (no rebuild)
+REBUILD_NAN_ADDONS_DETECT_ONLY=1 rebuild-nan-addons.sh
+```
+
 ## How It Works
 
 The Dockerfiles build Node.js from the v25.x or v26.x branch (selected via the `NODE_VERSION` build arg) with the `--experimental-enable-pointer-compression` configure flag. This enables V8's pointer compression feature which uses 32-bit offsets from a base address instead of full 64-bit pointers.

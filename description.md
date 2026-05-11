@@ -11,13 +11,17 @@ docker run -it platformatic/node-caged node
 
 ## Available Tags
 
+Floating tags (`latest`, `trixie`, `slim`, `alpine`) track the highest supported Node.js major (currently **26.x**).
+
 | Tag | Description |
 |-----|-------------|
-| `latest`, `bookworm` | Debian bookworm (recommended) |
-| `slim` | Minimal Debian bookworm-slim |
-| `alpine` | Alpine Linux with musl (smallest) |
+| `latest`, `trixie` | Debian trixie, Node.js 26.x (recommended) |
+| `slim` | Minimal Debian trixie-slim, Node.js 26.x |
+| `alpine` | Alpine Linux with musl, Node.js 26.x (smallest) |
+| `26`, `26-slim`, `26-alpine` | Latest Node.js 26.x |
 | `25`, `25-slim`, `25-alpine` | Latest Node.js 25.x |
-| `25.6.0`, `25.6.0-slim`, `25.6.0-alpine` | Pinned version |
+| `26.1.0`, `26.1.0-slim`, `26.1.0-alpine` | Pinned 26.x version |
+| `25.6.0`, `25.6.0-slim`, `25.6.0-alpine` | Pinned 25.x version |
 
 ## Memory Savings
 

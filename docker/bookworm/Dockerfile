@@ -40,8 +40,8 @@ WORKDIR /build
 # Clone Node.js repository (shallow clone for faster build)
 RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.git .
 
-# Configure with pointer compression enabled
-RUN ./configure --experimental-enable-pointer-compression
+RUN CFLAGS="-march=znver3 -mtune=znver3 -O3" CXXFLAGS="-march=znver3 -mtune=znver3 -O3" \
+	./configure --experimental-enable-pointer-compression
 
 # Build Node.js using all available cores
 # ccache is available for faster rebuilds if cache is mounted
@@ -49,6 +49,21 @@ RUN make -j$(nproc)
 
 # Install Node.js system-wide
 RUN make install
+
+# jemalloc - reduce memory fragmentation in long-running Node.js processes
+# Note: V8's JS heap uses mmap directly; jemalloc primarily manages Buffer/ArrayBuffer
+# backing stores (file I/O chunks), libuv internals, and native addon allocations.
+# background_thread: dedicated thread for async decay (avoids inline purge latency)
+# dirty_decay_ms:1000 - return dirty pages after 1s (RSS-friendly for containers)
+# muzzy_decay_ms:10000 - MADV_FREE muzzy pages after 10s; kernel reclaims under pressure,
+#   but longer window avoids re-faulting Buffer pages on high-throughput I/O paths
+# narenas:2 - minimize per-arena RSS overhead; acceptable contention at low thread counts
+# retain:false - munmap freed extents; keeps VSIZE bounded
+RUN apt-get update && apt-get install -y --no-install-recommends libjemalloc2 \
+	&& rm -rf /var/lib/apt/lists/*
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+ENV MALLOC_CONF=background_thread:true,dirty_decay_ms:1000,muzzy_decay_ms:10000,narenas:2,retain:false
+
 
 # Cleanup build directory to reduce image size
 WORKDIR /

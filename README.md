@@ -10,11 +10,11 @@ This repository contains experiments for building Node.js with V8 pointer compre
 Pre-built multi-architecture images (amd64/arm64) are available on DockerHub:
 
 ```bash
-# Pull the latest image (Debian bookworm, recommended)
+# Pull the latest image (Debian trixie, recommended)
 docker pull platformatic/node-caged:latest
 
 # Or use a specific variant
-docker pull platformatic/node-caged:bookworm  # Full Debian
+docker pull platformatic/node-caged:trixie    # Full Debian
 docker pull platformatic/node-caged:slim      # Minimal Debian
 docker pull platformatic/node-caged:alpine    # Alpine Linux (experimental)
 
@@ -31,24 +31,24 @@ docker pull platformatic/node-caged:25.6.1-slim
 
 ### Available Tags
 
-Both Node.js 25.x and 26.x are published. Floating tags (`latest`, `bookworm`, `slim`, `alpine`) track the highest published major (currently `26`).
+Both Node.js 25.x and 26.x are published. Floating tags (`latest`, `trixie`, `slim`, `alpine`) track the highest published major (currently `26`).
 
 | Tag | Description |
 |-----|-------------|
-| `latest`, `bookworm` | Latest build on Debian bookworm for the highest major (recommended) |
-| `slim` | Minimal Debian bookworm-slim runtime for the highest major |
+| `latest`, `trixie` | Latest build on Debian trixie for the highest major (recommended) |
+| `slim` | Minimal Debian trixie-slim runtime for the highest major |
 | `alpine` | Alpine Linux with musl libc for the highest major (experimental) |
-| `{major}` | Latest patch of major version on bookworm (e.g., `25`, `26`) |
+| `{major}` | Latest patch of major version on trixie (e.g., `25`, `26`) |
 | `{major}-{variant}` | Latest patch of major version with variant (e.g., `25-slim`, `26-alpine`) |
-| `{version}` | Exact Node.js version on bookworm (e.g., `25.6.1`) |
-| `{version}-{variant}` | Exact version and variant (e.g., `25.6.1-alpine`) |
+| `{version}` | Exact Node.js version on trixie (e.g., `26.1.0`) |
+| `{version}-{variant}` | Exact version and variant (e.g., `26.1.0-alpine`) |
 
 ### Variant Comparison
 
 | Variant | Base Image | Size | Compatibility |
 |---------|-----------|------|---------------|
-| `bookworm` | debian:bookworm | ~250MB | Full glibc, best compatibility |
-| `slim` | debian:bookworm-slim | ~150MB | Minimal glibc runtime |
+| `trixie` | debian:trixie | ~250MB | Full glibc, best compatibility |
+| `slim` | debian:trixie-slim | ~150MB | Minimal glibc runtime |
 | `alpine` | alpine:3.21 | ~100MB | musl libc, experimental |
 
 ## Quick Start
@@ -159,8 +159,8 @@ docker run -v $(pwd):/app node-pointer-compression node /app/your-script.js
 To build a specific variant locally:
 
 ```bash
-# Build bookworm variant
-docker build -f docker/bookworm/Dockerfile -t node-pointer-compression:bookworm .
+# Build trixie variant
+docker build -f docker/trixie/Dockerfile -t node-pointer-compression:trixie .
 
 # Build slim variant
 docker build -f docker/slim/Dockerfile -t node-pointer-compression:slim .

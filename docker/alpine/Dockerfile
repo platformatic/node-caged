@@ -4,8 +4,8 @@
 # WARNING: This is an experimental build. The combination of musl libc
 # and V8 pointer compression is not extensively tested.
 
-# Node.js version to build (tag or branch, e.g., v25.6.1 or v25.x)
-ARG NODE_VERSION=v25.x
+# Node.js version to build (tag or branch, e.g., v26.1.0 or v26.x)
+ARG NODE_VERSION=v26.x
 
 FROM alpine:3.21 AS builder
 

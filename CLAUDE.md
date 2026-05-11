@@ -8,9 +8,9 @@ This repository contains experiments for building Node.js with V8 pointer compre
 
 ## Build Commands
 
-Build a Docker image variant (bookworm, slim, or alpine):
+Build a Docker image variant (trixie, slim, or alpine):
 ```bash
-docker build --network=host -f docker/bookworm/Dockerfile -t node-caged .
+docker build --network=host -f docker/trixie/Dockerfile -t node-caged .
 ```
 
 Note: `--network=host` is required to avoid DNS resolution issues during the build.
@@ -39,12 +39,12 @@ Test scripts in `tests/`:
 ## Architecture
 
 Dockerfiles in `docker/` build Node.js with the `--experimental-enable-pointer-compression` configure flag. Three variants are available:
-- `docker/bookworm/Dockerfile` - Full Debian bookworm (default)
-- `docker/slim/Dockerfile` - Minimal Debian
+- `docker/trixie/Dockerfile` - Full Debian trixie (default)
+- `docker/slim/Dockerfile` - Minimal Debian trixie
 - `docker/alpine/Dockerfile` - Alpine Linux
 
 Key build details:
-- Compiler: GCC 12 (required for C++20 support in V8)
-- Node.js branches built in CI: v25.x and v26.x (selectable via the `node_major` workflow input; defaults to `all`). Local Dockerfile default is `v25.x`, override with `--build-arg NODE_VERSION=v26.x`.
+- Compiler: GCC 14 (ships with Debian trixie and Alpine 3.21; required because Node.js v26 V8 fails to compile under gcc-12).
+- Node.js branches built in CI: v25.x and v26.x (selectable via the `node_major` workflow input; defaults to `all`). Local Dockerfile default is `v26.x`, override with `--build-arg NODE_VERSION=v25.x` if needed.
 - Build flag: `--experimental-enable-pointer-compression`
-- Floating Docker tags (`latest`, `bookworm`, `slim`, `alpine`) track the highest major; the `LATEST_MAJOR` env var in `.github/workflows/build-publish.yml` controls this.
+- Floating Docker tags (`latest`, `trixie`, `slim`, `alpine`) track the highest major; the `LATEST_MAJOR` env var in `.github/workflows/build-publish.yml` controls this.

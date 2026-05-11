@@ -1,10 +1,12 @@
-# Dockerfile for Node.js with pointer compression - Debian Bookworm variant
-# Full Debian bookworm with glibc, similar to official Node.js images
+# Dockerfile for Node.js with pointer compression - Debian Trixie variant
+# Full Debian trixie with glibc, similar to official Node.js images.
+# Trixie ships gcc-14 by default, which is required to build Node.js v26
+# (V8's builtins-iterator-inl.h static_assert fails under gcc-12).
 
-# Node.js version to build (tag or branch, e.g., v25.6.1 or v25.x)
-ARG NODE_VERSION=v25.x
+# Node.js version to build (tag or branch, e.g., v26.1.0 or v26.x)
+ARG NODE_VERSION=v26.x
 
-FROM debian:bookworm
+FROM debian:trixie
 
 # Re-declare ARG after FROM to make it available in this stage
 ARG NODE_VERSION
@@ -13,26 +15,17 @@ ARG NODE_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build dependencies
-# GCC 13 from bookworm-backports — Node.js v26 V8 fails to compile with gcc-12
-# due to a static_assert in builtins-iterator-inl.h that gcc-12 instantiates
-# in unreachable branches.
-RUN echo 'deb http://deb.debian.org/debian bookworm-backports main' \
-        > /etc/apt/sources.list.d/backports.list \
-    && apt-get update && apt-get install -y \
-        build-essential \
-        git \
-        python3 \
-        python3-pip \
-        curl \
-        ca-certificates \
-        make \
-        ccache \
-        libssl-dev \
-    && apt-get install -y -t bookworm-backports gcc-13 g++-13 \
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    python3 \
+    python3-pip \
+    curl \
+    ca-certificates \
+    make \
+    ccache \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
-
-ENV CC=gcc-13
-ENV CXX=g++-13
 
 # Set working directory for build
 WORKDIR /build

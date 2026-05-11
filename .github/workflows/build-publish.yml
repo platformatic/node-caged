@@ -1,6 +1,6 @@
 # Multi-architecture Docker build and publish workflow
 # Builds Node.js with pointer compression for amd64 and arm64
-# Supports three variants: bookworm (Debian), slim (minimal), alpine
+# Supports three variants: trixie (Debian), slim (minimal), alpine
 # Supports multiple Node.js majors: 25.x and 26.x
 #
 # Features:
@@ -31,7 +31,7 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: platformatic/node-caged
-  # The major that owns floating tags (`latest`, `bookworm`, `slim`, `alpine`,
+  # The major that owns floating tags (`latest`, `trixie`, `slim`, `alpine`,
   # `{version}`, `{version}-{variant}` without major prefix).
   LATEST_MAJOR: '26'
 
@@ -86,7 +86,7 @@ jobs:
               SHOULD=true
             else
               STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/${VERSION}-bookworm")
+                "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags/${VERSION}-trixie")
               if [ "$STATUS" = "200" ]; then
                 echo "Version $VERSION already exists on DockerHub, skipping"
                 SHOULD=false
@@ -137,7 +137,7 @@ jobs:
       fail-fast: false
       matrix:
         build: ${{ fromJSON(needs.check.outputs.builds_matrix) }}
-        variant: [bookworm, slim, alpine]
+        variant: [trixie, slim, alpine]
         arch: [amd64, arm64]
         include:
           - arch: amd64
@@ -198,7 +198,7 @@ jobs:
     strategy:
       matrix:
         build: ${{ fromJSON(needs.check.outputs.builds_matrix) }}
-        variant: [bookworm, slim, alpine]
+        variant: [trixie, slim, alpine]
 
     steps:
       - name: Download amd64 digest
@@ -241,7 +241,7 @@ jobs:
 
           TAGS=""
 
-          # Always: major-variant tag (e.g. 25-bookworm, 26-bookworm)
+          # Always: major-variant tag (e.g. 25-trixie, 26-trixie)
           TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}-${VARIANT}"
 
           # Always: full version-variant tag (skip when version is a branch tip)
@@ -249,13 +249,13 @@ jobs:
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}-${VARIANT}"
           fi
 
-          # Only the highest major owns floating variant-only tags (bookworm, slim, alpine)
+          # Only the highest major owns floating variant-only tags (trixie, slim, alpine)
           if [ "$IS_LATEST_MAJOR" = "true" ]; then
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VARIANT}"
           fi
 
-          # bookworm is the default variant — gets unsuffixed major/version/latest tags
-          if [ "$VARIANT" = "bookworm" ]; then
+          # trixie is the default variant — gets unsuffixed major/version/latest tags
+          if [ "$VARIANT" = "trixie" ]; then
             TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}"
             if [[ "$NODE_VERSION" != *.x ]]; then
               TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${NODE_VERSION}"
@@ -286,7 +286,7 @@ jobs:
       fail-fast: false
       matrix:
         build: ${{ fromJSON(needs.check.outputs.builds_matrix) }}
-        variant: [bookworm, slim, alpine]
+        variant: [trixie, slim, alpine]
         arch: [amd64, arm64]
         include:
           - arch: amd64
@@ -364,7 +364,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "$BUILDS_MATRIX" | jq -r '.[] | "- Node.js v\(.version) (major \(.major))"' >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Floating tags (\`latest\`, \`bookworm\`, \`slim\`, \`alpine\`) are owned by major \`$LATEST_MAJOR\`." >> $GITHUB_STEP_SUMMARY
+            echo "Floating tags (\`latest\`, \`trixie\`, \`slim\`, \`alpine\`) are owned by major \`$LATEST_MAJOR\`." >> $GITHUB_STEP_SUMMARY
           else
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "### Skipped" >> $GITHUB_STEP_SUMMARY

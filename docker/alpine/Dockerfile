@@ -6,11 +6,17 @@
 
 # Node.js version to build (tag or branch, e.g., v26.1.0 or v26.x)
 ARG NODE_VERSION=v26.x
+ARG RUST_VERSION=stable
 
 FROM alpine:3.21 AS builder
 
 # Re-declare ARG after FROM to make it available in this stage
 ARG NODE_VERSION
+ARG RUST_VERSION
+
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
 
 # Install build dependencies
 # Alpine uses musl libc and different package names
@@ -19,11 +25,20 @@ RUN apk add --no-cache \
     git \
     python3 \
     curl \
+    ca-certificates \
     linux-headers \
     openssl-dev \
     ccache \
     bash \
     procps
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y \
+        --no-modify-path \
+        --profile minimal \
+        --default-toolchain "${RUST_VERSION}" \
+    && rustc --version \
+    && cargo --version
 
 # Set working directory for build
 WORKDIR /build
@@ -35,6 +50,7 @@ RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.
 # Note: Some configure options may differ on Alpine/musl
 RUN ./configure \
     --experimental-enable-pointer-compression \
+    --v8-enable-temporal-support \
     --prefix=/usr/local
 
 # Build Node.js using all available cores

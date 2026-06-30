@@ -4,6 +4,7 @@
 
 # Node.js version to build (tag or branch, e.g., v26.1.0 or v26.x)
 ARG NODE_VERSION=v26.x
+ARG RUST_VERSION=stable
 
 # =============================================================================
 # Stage 1: Build Node.js with pointer compression
@@ -12,9 +13,14 @@ FROM debian:trixie AS builder
 
 # Re-declare ARG after FROM to make it available in this stage
 ARG NODE_VERSION
+ARG RUST_VERSION
 
 # Avoid interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
+
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -29,6 +35,14 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y \
+        --no-modify-path \
+        --profile minimal \
+        --default-toolchain "${RUST_VERSION}" \
+    && rustc --version \
+    && cargo --version
+
 # Set working directory for build
 WORKDIR /build
 
@@ -39,6 +53,7 @@ RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.
 # Use prefix to install to a clean directory for easy copying
 RUN ./configure \
     --experimental-enable-pointer-compression \
+    --v8-enable-temporal-support \
     --prefix=/usr/local
 
 # Build Node.js using all available cores

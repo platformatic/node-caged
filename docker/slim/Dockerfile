@@ -4,7 +4,7 @@
 
 # Node.js version to build (tag or branch, e.g., v26.1.0 or v26.x)
 ARG NODE_VERSION=v26.x
-ARG RUST_VERSION=stable
+ARG RUST_VERSION=1.88.0
 
 # =============================================================================
 # Stage 1: Build Node.js with pointer compression

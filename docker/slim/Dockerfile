@@ -35,13 +35,21 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y \
-        --no-modify-path \
-        --profile minimal \
-        --default-toolchain "${RUST_VERSION}" \
-    && rustc --version \
-    && cargo --version
+RUN set -eux; \
+    node_major="${NODE_VERSION#v}"; \
+    node_major="${node_major%%.*}"; \
+    case "$node_major" in ''|*[!0-9]*) node_major=0 ;; esac; \
+    if [ "$node_major" -ge 26 ]; then \
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y \
+                --no-modify-path \
+                --profile minimal \
+                --default-toolchain "${RUST_VERSION}"; \
+        rustc --version; \
+        cargo --version; \
+    else \
+        echo "Skipping Rust toolchain; Temporal support is disabled for Node.js ${NODE_VERSION}"; \
+    fi
 
 # Set working directory for build
 WORKDIR /build
@@ -51,10 +59,15 @@ RUN git clone --depth 1 --branch ${NODE_VERSION} https://github.com/nodejs/node.
 
 # Configure with pointer compression enabled
 # Use prefix to install to a clean directory for easy copying
-RUN ./configure \
-    --experimental-enable-pointer-compression \
-    --v8-enable-temporal-support \
-    --prefix=/usr/local
+RUN set -eux; \
+    node_major="${NODE_VERSION#v}"; \
+    node_major="${node_major%%.*}"; \
+    case "$node_major" in ''|*[!0-9]*) node_major=0 ;; esac; \
+    set -- --experimental-enable-pointer-compression; \
+    if [ "$node_major" -ge 26 ]; then \
+        set -- "$@" --v8-enable-temporal-support; \
+    fi; \
+    ./configure "$@" --prefix=/usr/local
 
 # Build Node.js using all available cores
 RUN make -j$(nproc)

@@ -21,25 +21,23 @@ docker pull platformatic/node-caged:alpine    # Alpine Linux (experimental)
 # Pin to a major Node.js version (recommended for most users)
 docker pull platformatic/node-caged:26
 docker pull platformatic/node-caged:26-slim
-docker pull platformatic/node-caged:25
-docker pull platformatic/node-caged:25-slim
 
 # Pin to an exact Node.js version
-docker pull platformatic/node-caged:25.6.1
-docker pull platformatic/node-caged:25.6.1-slim
+docker pull platformatic/node-caged:26.1.0
+docker pull platformatic/node-caged:26.1.0-slim
 ```
 
 ### Available Tags
 
-Both Node.js 25.x and 26.x are published. Floating tags (`latest`, `trixie`, `slim`, `alpine`) track the highest published major (currently `26`).
+Only Node.js 26.x is published. Floating tags (`latest`, `trixie`, `slim`, `alpine`) track the highest published major (currently `26`).
 
 | Tag | Description |
 |-----|-------------|
 | `latest`, `trixie` | Latest build on Debian trixie for the highest major (recommended) |
 | `slim` | Minimal Debian trixie-slim runtime for the highest major |
 | `alpine` | Alpine Linux with musl libc for the highest major (experimental) |
-| `{major}` | Latest patch of major version on trixie (e.g., `25`, `26`) |
-| `{major}-{variant}` | Latest patch of major version with variant (e.g., `25-slim`, `26-alpine`) |
+| `{major}` | Latest patch of major version on trixie (e.g., `26`) |
+| `{major}-{variant}` | Latest patch of major version with variant (e.g., `26-slim`, `26-alpine`) |
 | `{version}` | Exact Node.js version on trixie (e.g., `26.1.0`) |
 | `{version}-{variant}` | Exact version and variant (e.g., `26.1.0-alpine`) |
 
@@ -132,7 +130,7 @@ cd ../../..
 
 ## How It Works
 
-The Dockerfiles build Node.js from the v25.x or v26.x branch (selected via the `NODE_VERSION` build arg) with the `--experimental-enable-pointer-compression` configure flag. This enables V8's pointer compression feature which uses 32-bit offsets from a base address instead of full 64-bit pointers.
+The Dockerfiles build Node.js from the v26.x branch (overridable via the `NODE_VERSION` build arg) with the `--experimental-enable-pointer-compression` configure flag. This enables V8's pointer compression feature which uses 32-bit offsets from a base address instead of full 64-bit pointers.
 
 ## Test Scripts
 
@@ -174,7 +172,7 @@ docker build -f docker/alpine/Dockerfile -t node-pointer-compression:alpine .
 The GitHub Actions workflow builds and publishes multi-architecture images:
 
 - **Trigger**: Manual only (`workflow_dispatch`)
-- **Major selection**: Choose `25`, `26`, or `all` (default) when dispatching
+- **Major selection**: Choose `26` or `all` (default) when dispatching; only 26.x is currently built
 - **Version detection**: Automatically detects the latest release for each selected major
 - **Duplicate check**: Skips a major if its current version already exists on DockerHub
 - **Force rebuild**: Option to bypass the version check and rebuild

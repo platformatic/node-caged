@@ -45,6 +45,6 @@ Dockerfiles in `docker/` build Node.js with the `--experimental-enable-pointer-c
 
 Key build details:
 - Compiler: GCC 14 (ships with Debian trixie and Alpine 3.21; required because Node.js v26 V8 fails to compile under gcc-12).
-- Node.js branches built in CI: v25.x and v26.x (selectable via the `node_major` workflow input; defaults to `all`). Local Dockerfile default is `v26.x`, override with `--build-arg NODE_VERSION=v25.x` if needed.
-- Build flag: `--experimental-enable-pointer-compression`
+- Node.js branch built in CI: v26.x only (v25.x support was dropped). The `node_major` workflow input is kept so a new major can be added by extending its `options` and the `MAJORS` array. Local Dockerfile default is `v26.x`, override with `--build-arg NODE_VERSION=v26.1.0` to pin a tag.
+- Build flags: `--experimental-enable-pointer-compression --v8-enable-temporal-support` (Temporal needs the Rust toolchain, installed unconditionally in every Dockerfile).
 - Floating Docker tags (`latest`, `trixie`, `slim`, `alpine`) track the highest major; the `LATEST_MAJOR` env var in `.github/workflows/build-publish.yml` controls this.

@@ -1,11 +1,11 @@
 # Multi-architecture Docker build and publish workflow
 # Builds Node.js with pointer compression for amd64 and arm64
 # Supports three variants: trixie (Debian), slim (minimal), alpine
-# Supports multiple Node.js majors: 25.x and 26.x
+# Builds Node.js 26.x (the `node_major` input is kept so new majors can be added)
 #
 # Features:
 # - Manual trigger only (workflow_dispatch)
-# - Choose which Node.js major to build (25, 26, or all)
+# - Choose which Node.js major to build (26, or all)
 # - Automatically detects latest release for each selected major
 # - Skips a major if its current version already exists on DockerHub
 # - Force rebuild option to bypass version check
@@ -20,7 +20,6 @@ on:
         type: choice
         options:
           - all
-          - '25'
           - '26'
         default: all
       force:
@@ -56,7 +55,7 @@ jobs:
           set -euo pipefail
 
           if [ "$NODE_MAJOR_INPUT" = "all" ]; then
-            MAJORS=(25 26)
+            MAJORS=(26)
           else
             MAJORS=("$NODE_MAJOR_INPUT")
           fi
@@ -241,7 +240,7 @@ jobs:
 
           TAGS=""
 
-          # Always: major-variant tag (e.g. 25-trixie, 26-trixie)
+          # Always: major-variant tag (e.g. 26-trixie)
           TAGS="$TAGS -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${MAJOR_VERSION}-${VARIANT}"
 
           # Always: full version-variant tag (skip when version is a branch tip)

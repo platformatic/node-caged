@@ -19,9 +19,7 @@ Floating tags (`latest`, `trixie`, `slim`, `alpine`) track the highest supported
 | `slim` | Minimal Debian trixie-slim, Node.js 26.x |
 | `alpine` | Alpine Linux with musl, Node.js 26.x (smallest) |
 | `26`, `26-slim`, `26-alpine` | Latest Node.js 26.x |
-| `25`, `25-slim`, `25-alpine` | Latest Node.js 25.x |
 | `26.1.0`, `26.1.0-slim`, `26.1.0-alpine` | Pinned 26.x version |
-| `25.6.0`, `25.6.0-slim`, `25.6.0-alpine` | Pinned 25.x version |
 
 ## Memory Savings
 

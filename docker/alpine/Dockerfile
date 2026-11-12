@@ -77,6 +77,9 @@ COPY --from=builder /node-install/usr/local /usr/local
 # Verify installation
 RUN node --version && npm --version
 
+# Helper to rebuild NAN/ABI-specific addons from source (needs build tools)
+COPY scripts/rebuild-nan-addons.sh /usr/local/bin/rebuild-nan-addons
+
 # Set working directory for running applications
 WORKDIR /app
 

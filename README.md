@@ -129,7 +129,11 @@ rebuild-nan-addons /path/to/node_modules
 REBUILD_NAN_ADDONS_DETECT_ONLY=1 rebuild-nan-addons
 ```
 
-The script exits non-zero if any rebuild fails. It has been tested with `node-expat` (NAN, sources in the tarball) and `@datadog/pprof` (prebuilds only, sources fetched from git).
+The script exits non-zero if any rebuild fails. It has been tested with `node-expat` 2.4.1 (NAN, sources in the tarball) and `@datadog/pprof` 5.19.0 (prebuilds only, sources fetched from git). Without the rebuild, `@datadog/pprof` loads its stock prebuild and segfaults.
+
+The images set `npm_config_nodedir=/usr/local`, so `npm install` and `rebuild-nan-addons` compile addons against this build's own headers instead of downloading the stock ones. This also makes source builds work on images built from a branch tip (`-pre` versions), where node-gyp refuses to download headers.
+
+Some addons cannot be built for pointer compression at all. `@datadog/pprof` 5.20.0 and later fail with `static assertion failed: nodejs_v1 assumes a V8 built without pointer compression`; pin `@datadog/pprof@5.19.0` or earlier.
 
 ## How It Works
 

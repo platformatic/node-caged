@@ -76,6 +76,13 @@ RUN apt-get purge -y \
 # Verify installation
 RUN node --version && npm --version
 
+# Helper to rebuild NAN/ABI-specific addons from source (needs build tools)
+COPY scripts/rebuild-nan-addons.sh /usr/local/bin/rebuild-nan-addons
+
+# Build native addons against this Node.js's headers instead of downloading
+# the stock ones (node-gyp also refuses to download headers for -pre builds)
+ENV npm_config_nodedir=/usr/local
+
 # Set working directory for running applications
 WORKDIR /app
 

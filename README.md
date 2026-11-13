@@ -98,35 +98,42 @@ Memory comparison between standard Node.js 22 and pointer-compressed Node.js 25 
 
 ### Workarounds for Non-N-API Addons
 
-If your dependency uses `nan` and does not provide binaries built for this runtime, you must force a local rebuild of its native addon.
+Addons built on `nan` (or the raw V8 API) are tied to the Node.js ABI. Their prebuilt binaries target stock Node.js and must be rebuilt from source against this runtime. Every image ships a `rebuild-nan-addons` helper that finds these addons in `node_modules` (N-API addons are skipped) and rebuilds them with `node-gyp` using the local Node.js headers. When the npm tarball only ships prebuilds (for example `@datadog/pprof`), it clones the package repository at the matching version tag to get `binding.gyp` and the sources.
 
-If the package in `node_modules` still contains source files, try a normal rebuild:
+The runtime images do not include a compiler, so run it in a build stage:
 
-```bash
-cd node_modules/<package-name>
-pnpm install --ignore-scripts
-pnpm run rebuild
+```dockerfile
+FROM platformatic/node-caged:slim AS deps
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ git ca-certificates
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && rebuild-nan-addons
+
+FROM platformatic/node-caged:slim
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+CMD ["node", "index.js"]
 ```
 
-Some packages on npm do not ship source files needed to rebuild. In these cases, you may need to fetch the source from the git repository, copy it back into `node_modules`, and run a manual rebuild.
-
-#### Known affected package example
-
-##### `@datadog/pprof`
-
-This was tested against [@datadog/pprof](https://www.npmjs.com/package/@datadog/pprof) 5.13.5.
+On Alpine, install the tools with `apk add python3 make g++ git`.
 
 ```bash
-cd node_modules/@datadog/pprof
-pnpm install --ignore-scripts
-PPROF_VERSION=$(node -p "require('./package.json').version")
-PPROF_REPO=$(node -p "require('./package.json').repository.url.replace('git+', '')")
-git clone -q --depth=1 --branch=v$PPROF_VERSION $PPROF_REPO /tmp/pprof-nodejs > /dev/null 2>&1
-mv /tmp/pprof-nodejs/{binding.gyp,bindings} .
-rm -rf /tmp/pprof-nodejs
-pnpm run rebuild
-cd ../../..
+# Scan ./node_modules (default)
+rebuild-nan-addons
+
+# Scan a specific directory
+rebuild-nan-addons /path/to/node_modules
+
+# List the addons that would be rebuilt, without building
+REBUILD_NAN_ADDONS_DETECT_ONLY=1 rebuild-nan-addons
 ```
+
+The script exits non-zero if any rebuild fails. It has been tested with `node-expat` 2.4.1 (NAN, sources in the tarball) and `@datadog/pprof` 5.19.0 (prebuilds only, sources fetched from git). Without the rebuild, `@datadog/pprof` loads its stock prebuild and segfaults.
+
+The images set `npm_config_nodedir=/usr/local`, so `npm install` and `rebuild-nan-addons` compile addons against this build's own headers instead of downloading the stock ones. This also makes source builds work on images built from a branch tip (`-pre` versions), where node-gyp refuses to download headers.
+
+Some addons cannot be built for pointer compression at all. `@datadog/pprof` 5.20.0 and later fail with `static assertion failed: nodejs_v1 assumes a V8 built without pointer compression`; pin `@datadog/pprof@5.19.0` or earlier.
 
 ## How It Works
 
